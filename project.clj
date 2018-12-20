@@ -2,7 +2,8 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.10.238"]
                  [reagent "0.7.0"]
-                 [re-frame "0.10.5"]]
+                 [re-frame "0.10.5"]
+                 [funcool/cuerdas "2.0.5"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]]
 
