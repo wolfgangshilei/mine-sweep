@@ -14,7 +14,8 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"
                                     "test/js"]
 
-  :figwheel {:css-dirs ["resources/public/css"]}
+  :figwheel {:css-dirs ["resources/public/css"]
+             :repl-eval-timeout 60000}
 
   :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 
@@ -23,8 +24,8 @@
    {:dependencies [[binaryage/devtools "0.9.10"]
                    [figwheel-sidecar "0.5.16"]
                    [cider/piggieback "0.3.5"]
-                   [re-frisk "0.5.3"]]
-
+                   [re-frisk "0.5.3"]
+                   [org.clojure/test.check "0.9.0"]]
     :plugins      [[lein-figwheel "0.5.16"]
                    [lein-doo "0.1.8"]]}
    :prod { }
@@ -58,6 +59,7 @@
      :compiler     {:main          mine-sweep.runner
                     :output-to     "resources/public/js/compiled/test.js"
                     :output-dir    "resources/public/js/compiled/test/out"
-                    :optimizations :none}}
+                    :optimizations :none
+                    :target        :nodejs}}
     ]}
   )

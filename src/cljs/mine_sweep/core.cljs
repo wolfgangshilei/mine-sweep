@@ -2,6 +2,7 @@
   (:require
    [reagent.core :as reagent]
    [re-frame.core :as re-frame]
+   [mine-sweep.db]
    [mine-sweep.events :as events]
    [mine-sweep.views :as views]
    [mine-sweep.config :as config]

@@ -1,4 +1,4 @@
-(ns mine-sweep.common.constants)
+(ns mine-sweep.ui.common.constants)
 
 (def cell-size 17)
 #_(def cell-gap  "0")
@@ -11,3 +11,7 @@
              :hard   {:n-mine 99
                       :n-row  16
                       :n-col  30}})
+
+(defn config-for-level
+  [level]
+  (get levels level))

@@ -2,3 +2,5 @@
 
 (def debug?
   ^boolean goog.DEBUG)
+
+#_(def debug? false)

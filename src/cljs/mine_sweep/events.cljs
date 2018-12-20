@@ -1,10 +1,13 @@
 (ns mine-sweep.events
-  (:require
-   [re-frame.core :as re-frame]
-   [mine-sweep.db :as db]
-   ))
+  (:require #_[re-frame.core :as rf]
+            [mine-sweep.db :refer [default-db]]
+            [mine-sweep.utils.re-frame :refer [register-event-fx]]
+            [mine-sweep.ui.game-panel.mine-field.events]
+            [mine-sweep.ui.game-panel.events]
+            #_[mine-sweep.ui.common.constants :as const]))
 
-(re-frame/reg-event-db
+(register-event-fx
  ::initialize-db
- (fn [_ _]
-   db/default-db))
+ (fn [{:keys [db]}]
+   {:db       default-db
+    :dispatch [:ui.game.mf/initialize-mine-field]}))
