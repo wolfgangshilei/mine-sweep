@@ -8,7 +8,6 @@
 
 (defn- cell-view
   [{:keys [mouse-event-handler pos cell-content]}]
-  #_(print "cell-view" pos)
   [:div {:style (styles/cell cell-content)
          :on-mouse-down (fn [e]
                           (mouse-event-handler :down {:btn-code (.-button e) :pos pos}))

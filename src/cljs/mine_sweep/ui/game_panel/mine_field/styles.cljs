@@ -30,13 +30,11 @@
                                  :width               (common-styles/num->px width)
                                  :height              (common-styles/num->px height)})))
 
-(def cell-basic-styles
-  {:height           (common-styles/num->px const/cell-size)
-   :width            (common-styles/num->px const/cell-size)
-   :background-color common-styles/darkgrey-bg-color
-   :text-align       "center"
-   :vertical-align   "center"
-   :user-select      "none"})
+(defn- cell-basic-styles
+  [styles]
+  (into {:height           (common-styles/num->px const/cell-size)
+         :width            (common-styles/num->px const/cell-size)}
+        styles))
 
 (defn- marked-cell-background
   [content]
@@ -60,19 +58,22 @@
          8 "#808080"}]
     (if (= content :mine)
       {:background (common-styles/inline-svg svg/mine)}
-      {:color      (get numbered-color content)})))
+      {:color            (get numbered-color content)
+       :text-align       "center"
+       :vertical-align   "center"
+       :user-select      "none"})))
 
 (defn cell
   [[state content]]
   (case state
-    :covered       (common-styles/with-convex cell-basic-styles)
-    :investigating (assoc cell-basic-styles :background-color "transparent")
-    :exploded      (assoc cell-basic-styles
-                          :background (gstr/istr "~{(common-styles/inline-svg svg/mine)},red"))
-    :marked        (common-styles/with-convex (assoc cell-basic-styles
-                                                     :background-color "transparent"
-                                                     :background       (marked-cell-background content)))
-    :revealed      (merge cell-basic-styles
-                          {:background-color "transparent"}
+    :covered       (common-styles/with-convex (cell-basic-styles {:background-color common-styles/darkgrey-bg-color}))
+    :investigating (cell-basic-styles {:background-color "transparent"})
+    :exploded      (cell-basic-styles
+                    {:background (gstr/istr "~{(common-styles/inline-svg svg/mine)},red")})
+    :marked        (common-styles/with-convex (cell-basic-styles
+                                               {:background-color "transparent"
+                                                :background       (marked-cell-background content)}))
+    :revealed      (merge (cell-basic-styles
+                           {:background-color "transparent"})
                           (revealed-cell-style content))
     nil))

@@ -25,7 +25,8 @@
              (map #(dropdown-menu-item {:text      %
                                         :selected? (= default-selection %)
                                         :show?     @expanded?
-                                        :on-select on-item-selected})
+                                        :on-select (fn [item] (reset! expanded? false)
+                                                     (on-item-selected item))})
                   items))))))
 
 (defn toolbar []

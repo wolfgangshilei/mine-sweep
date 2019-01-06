@@ -26,12 +26,6 @@
 (defn with-concave
   [styles]
   (merge styles
-         #_{:box-sizing "border-box"
-          :border-top (gstr/istr "~{shadow-width} solid ~{dark-shadow-color}")
-          :border-left (gstr/istr "~{shadow-width} solid ~{dark-shadow-color}")
-          :border-right (gstr/istr "~{shadow-width} solid ~{light-shadow-color}")
-          :border-bottom (gstr/istr "~{shadow-width} solid ~{light-shadow-color}")}
-
          {:box-shadow (clojure.string/join ","
                                 [(gstr/istr "inset -~{shadow-width} -~{shadow-width} ~{shadow-blur} ~{light-shadow-color}")
                                  (gstr/istr "inset ~{shadow-width} ~{shadow-width} ~{shadow-blur} ~{dark-shadow-color}")])}))
@@ -39,12 +33,6 @@
 (defn with-convex
   [styles]
   (merge styles
-         #_{:box-sizing "border-box"
-          :border-top (gstr/istr "~{shadow-width} solid ~{light-shadow-color}")
-          :border-left (gstr/istr "~{shadow-width} solid ~{light-shadow-color}")
-          :border-right (gstr/istr "~{shadow-width} solid ~{dark-shadow-color}")
-          :border-bottom (gstr/istr "~{shadow-width} solid ~{dark-shadow-color}")}
-
          {:box-shadow (clojure.string/join ","
                                 [(gstr/istr "inset -~{shadow-width} -~{shadow-width} ~{shadow-blur} ~{dark-shadow-color}")
                                  (gstr/istr "inset ~{shadow-width} ~{shadow-width} ~{shadow-blur} ~{light-shadow-color}")])}))
