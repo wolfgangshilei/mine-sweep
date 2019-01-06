@@ -24,36 +24,20 @@
    (get mine-field pos)))
 
 (rf/reg-sub
- :ui.game.mf/mine-neighbours-count
- (fn [[_ pos]]
-   [(rf/subscribe [:ui.game.mf/cell-data pos])
-    (rf/subscribe [:ui.game.mf/mine-field])])
- (fn [[cell-data mine-field] _]
-   (->> cell-data
-        :neighbours
-        (select-keys mine-field)
-        vals
-        (filter :mine?)
-        count)))
-
-(rf/reg-sub
  :ui.game.mf/cell-content
  (fn [[_ pos]]
    [(rf/subscribe [:ui.game.mf/cell-data pos])
-    (rf/subscribe [:ui.game.mf/game-state])
-    (rf/subscribe [:ui.game.mf/mine-neighbours-count pos])])
+    (rf/subscribe [:ui.game.mf/game-state])])
  (fn [[cell game-state mine-neighbours-count] _]
-   (let [{:keys [state mine?]} cell]
-     (cond
-       (and (= state :revealed)
-            ((complement zero?) mine-neighbours-count)
-            (not mine?))
-       mine-neighbours-count
+   (let [{:keys [state mine? mine-neighbours-count]} cell]
+     (case [state mine?]
+       [:revealed true]  [:revealed :mine]
 
-       (and (= game-state :lose)
-            (not mine?)
-            (= state :marked))
-       :error-marked
+       [:revealed false] [:revealed mine-neighbours-count]
 
-       :else
-       nil))))
+       [:marked true] [:marked :flag]
+
+       [:marked false] [:marked (if (= game-state :lose) :cross-flag :flag)]
+
+       ;;Defalut
+       [state nil]))))

@@ -38,25 +38,17 @@
       (is (= true (-> result first :clojure.test.check/ret :result))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(s/def ::n-row ::pos-int?)
-(s/def ::n-col ::pos-int?)
+(s/def ::cell-pos-data map?)
 (s/def ::mine-indexes ::random-gen-mines)
-(s/def ::init-cells-data-args (s/keys* :req-un [::n-row ::n-col ::mine-indexes]))
+(s/def ::init-cells-data-args (s/keys* :req-un [::cells-pos-data ::mine-indexes]))
 
 (def init-cells-data-args-generator
   #(gen/fmap
     (fn [level]
-      (let [{:keys [n-col n-row n-mine]} (get const/levels level)]
-        [:n-row n-row
-         :n-col n-col
-         :mine-indexes (events/random-gen-mines* (* n-row n-col) n-mine)]))
+      (let [{:keys [n-row n-col n-mine cells-pos-data]} (get const/levels level)]
+        [:cells-pos-data cells-pos-data
+         :mine-indexes   (events/random-gen-mines* (* n-row n-col) n-mine)]))
     (s/gen #{:easy :medium :hard})))
-
-(defn check-total-cells-count
-  [{:keys [ret args]}]
-  (let [{:keys [n-col n-row]} args]
-    (= (count ret)
-       (* n-col n-row))))
 
 (defn check-mines-count
   [{:keys [ret args]}]
@@ -71,14 +63,13 @@
   (let [{:keys [mine-indexes]} args]
     (->> ret
          vals
-         (map :neighbours)
-         (every? #(<= 3 (count %) 8)))))
+         (map :mine-neighbours-count)
+         (every? #(<= 0 % 8)))))
 
 (s/fdef events/init-cells-data
   :args ::init-cells-data-args
   :ret  ::mine-field
-  :fn   (s/and check-total-cells-count
-               check-mines-count
+  :fn   (s/and check-mines-count
                check-neighbours-count))
 
 (deftest init-cells-data
@@ -98,6 +89,7 @@
           empty-cell [0 8]
           db-mine-clicked (events/click-cell test-db (get-cell test-db mine-pos))
           db-auto-swept   (events/click-cell test-db (get-cell test-db empty-cell))]
-      (is (=  (-> db-auto-swept :ui.game.mf/revealed-cells-pos count) 34))
+      (is (= (-> (get-cell test-db [0 1]) :mine-neighbours-count) 2))
+      (is (= (-> db-auto-swept :ui.game.mf/revealed-cells-pos count) 34))
       (is (= (:state (get-cell db-mine-clicked mine-pos))
              :exploded)))))

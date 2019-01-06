@@ -38,33 +38,41 @@
    :vertical-align   "center"
    :user-select      "none"})
 
+(defn- marked-cell-background
+  [content]
+  (case content
+    :flag (common-styles/inline-svg svg/flag)
+    :cross-flag (gstr/istr "linear-gradient(45deg, transparent 47%, red 0, red 53%, transparent 0),"
+                           "linear-gradient(-45deg, transparent 47%, red 0, red 53%, transparent 0),"
+                           "~{(common-styles/inline-svg svg/flag)}")
+    nil))
+
+(defn revealed-cell-style
+  [content]
+  (let [numbered-color
+        {1 "#0720F4"
+         2 "#007B23"
+         3 "#FF0017"
+         4 "#010976"
+         5 "#7E0006"
+         6 "#0C7E81"
+         7 "#000000"
+         8 "#808080"}]
+    (if (= content :mine)
+      {:background (common-styles/inline-svg svg/mine)}
+      {:color      (get numbered-color content)})))
+
 (defn cell
-  [{:keys [state mine?]} content]
-  (let [color (case content
-                1 "#0720F4"
-                2 "#007B23"
-                3 "#FF0017"
-                4 "#010976"
-                5 "#7E0006"
-                6 "#0C7E81"
-                7 "#000000"
-                8 "#808080"
-                "black")]
-    ({:covered       (common-styles/with-convex cell-basic-styles)
-      :investigating (merge cell-basic-styles {:background-color "transparent"})
-      :marked        (common-styles/with-convex (assoc cell-basic-styles
-                                                       :background-color "transparent"
-                                                       :background (common-styles/inline-svg svg/flag)))
-      :error-marked  (common-styles/with-convex (assoc cell-basic-styles
-                                                       :background-color "transparent"
-                                                       :background
-                                                       (gstr/istr "linear-gradient(45deg, transparent 47%, red 0, red 53%, transparent 0),"
-                                                                  "linear-gradient(-45deg, transparent 47%, red 0, red 53%, transparent 0),"
-                                                                  "~{(common-styles/inline-svg svg/flag)}")))
-      :revealed      (assoc cell-basic-styles
-                            :background-color "transparent"
-                            :background       (when mine? (common-styles/inline-svg svg/mine))
-                            :color            color)
-      :exploded      (assoc cell-basic-styles
-                            :background (gstr/istr "~{(common-styles/inline-svg svg/mine)},red"))}
-     state)))
+  [[state content]]
+  (case state
+    :covered       (common-styles/with-convex cell-basic-styles)
+    :investigating (assoc cell-basic-styles :background-color "transparent")
+    :exploded      (assoc cell-basic-styles
+                          :background (gstr/istr "~{(common-styles/inline-svg svg/mine)},red"))
+    :marked        (common-styles/with-convex (assoc cell-basic-styles
+                                                     :background-color "transparent"
+                                                     :background       (marked-cell-background content)))
+    :revealed      (merge cell-basic-styles
+                          {:background-color "transparent"}
+                          (revealed-cell-style content))
+    nil))

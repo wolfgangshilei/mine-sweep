@@ -9,4 +9,4 @@
    :flex-direction   "column"
    :justify-content  "center"
    :background-color "#00FFFF"
-   :background-image "url(img/bg-img.jpeg)"})
+   :background       "url(img/bg-img.jpeg) center / cover"})

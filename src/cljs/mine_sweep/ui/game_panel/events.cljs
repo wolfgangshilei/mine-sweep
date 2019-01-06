@@ -76,8 +76,7 @@
         lose? (-> fx
                   (assoc-in [:db :game-state] :lose)
                   (assoc ::stop-timer nil
-                         :dispatch-n  [[:ui.game.mf/uncover-all-mines]
-                                       [:ui.game.mf/error-marked-cells]]))
+                         :dispatch    [:ui.game.mf/uncover-all-mines]))
         win?  (-> fx
                   (assoc-in [:db :game-state] :win)
                   (assoc ::stop-timer nil

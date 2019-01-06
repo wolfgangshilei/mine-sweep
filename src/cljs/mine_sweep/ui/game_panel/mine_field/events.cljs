@@ -2,41 +2,24 @@
   (:require [re-frame.core :as rf]
             [mine-sweep.utils.re-frame :refer [register-event-fx register-event-db]]
             [mine-sweep.ui.common.constants :as const]
-            [mine-sweep.utils.log :refer [log]]))
-
-(defn- init-cells-pos
-  [n-row n-col]
-  (for [x (range n-row)
-        y (range n-col)]
-    [x y]))
-
-(defn- init-neighbours-for-cell
-  [[x y] n-row n-col mine-cells-pos]
-  (for [row ((juxt inc dec identity) x)
-        col ((juxt inc dec identity) y)
-        :when (and (>= row 0)
-                   (>= col 0)
-                   (< row n-row)
-                   (< col n-col)
-                   (or (not= row x)
-                       (not= col y)))]
-    [row col]))
+            [mine-sweep.utils.log :refer [log]]
+            [mine-sweep.ui.game-panel.events :as gp-events]))
 
 (defn init-cells-data
-  [& {:keys [n-row n-col mine-indexes]}]
-  (let [cells-pos (init-cells-pos n-row n-col)
+  [& {:keys [cells-pos-data mine-indexes]}]
+  (let [cells-pos      (keys cells-pos-data)
         mine-cells-pos (into #{} (map #(nth cells-pos %) mine-indexes))]
     (into (sorted-map)
-          (map #(vec [%
-                      {:state      :covered
-                       :mine?      (contains? mine-cells-pos %)
-                       :neighbours (init-neighbours-for-cell
-                                    %
-                                    n-row
-                                    n-col
-                                    mine-cells-pos)
-                       :pos         %}]))
-          cells-pos)))
+          (map (fn [[pos neighbours]]
+                 [pos
+                  {:state      :covered
+                   :mine?      (contains? mine-cells-pos pos)
+                   :neighbours neighbours
+                   :pos        pos
+                   :mine-neighbours-count (-> (set neighbours)
+                                              (clojure.set/intersection mine-cells-pos)
+                                              count)}])
+               cells-pos-data))))
 
 (defn- neighbours
   [{:keys [mine-field]} cell]
@@ -49,10 +32,9 @@
   (let [level-config (-> db
                          :current-level
                          const/config-for-level)
-        {:keys [n-col n-row n-mine]} level-config
-        cells-data (init-cells-data :n-row n-row
-                                    :n-col n-col
-                                    :mine-indexes random-gen-mines)]
+        {:keys [n-col n-row n-mine cells-pos-data]} level-config
+        cells-data (init-cells-data :cells-pos-data cells-pos-data
+                                    :mine-indexes   random-gen-mines)]
     {:db (assoc db
                 :mine-field                      cells-data
                 :ui.game.mf/hit-mine?            false
@@ -73,8 +55,7 @@
    :investigating {:cancel-investigate :covered
                    :reveal             :revealed
                    :hit-mine           :exploded}
-   :marked        {:toggle-mark        :covered
-                   :mark-error         :error-marked}})
+   :marked        {:toggle-mark        :covered}})
 
 (defn new-state
   [old-state action]
@@ -155,6 +136,13 @@
       (change-cell-state db cell :toggle-mark)
       db)))
 
+(defn- update-game-state
+  [{:keys [db] :as fx} & states]
+  (reduce (fn [fx state]
+            (gp-events/update-game-state fx state))
+          {:db db}
+          states))
+
 (defn handle-mouse-event
   [db [current-event-id {:keys [state] :as cell}]]
   (let [previous-event-id (-> db :ui.game/mouse-event first)]
@@ -188,10 +176,10 @@
            (investigate-neighbours cell {:with-self? true}))}
 
       [:main-btn-down :main-btn-up]
-      {:db (-> db
-               clear-mouse-event
-               (click-cell cell))
-       :dispatch [:ui.game/update-game-state :should-start? :should-end?]}
+      (-> {:db (-> db
+                   clear-mouse-event
+                   (click-cell cell))}
+          (update-game-state :should-start? :should-end?))
 
       [:aux-btn-down :aux-btn-up]
       {:db (clear-mouse-event db)}
@@ -202,10 +190,10 @@
            (investigate-neighbours cell))}
 
       ([:investigate :aux-btn-up] [:investigate :main-btn-up])
-      {:db (-> db
-               clear-mouse-event
-               (sweep-or-cancel-investigate-neighbours cell))
-       :dispatch [:ui.game/update-game-state :should-end?]}
+      (-> {:db (-> db
+                   clear-mouse-event
+                   (sweep-or-cancel-investigate-neighbours cell))}
+          (update-game-state :should-end?))
 
       ;; Default
       {:db (clear-mouse-event db)})))
@@ -241,9 +229,6 @@
 (defn auto-sweep-neighbours
   ([db cell]
    (let [neighbours (neighbours db cell)]
-     #_(print "\n\n#####################################################################\n"
-            "#### auto-sweep for: " cell "\n"
-            "#####################################################################")
      (if (not-any? #(or (:mine? %)
                         (= (:state %) :marked))
                    neighbours)
@@ -252,7 +237,6 @@
 
 (defn click-cell
   [db {:keys [mine? state] :as cell}]
-  #_(print "{:click-cell " cell "}")
   (cond
     (and (#{:covered :investigating} state) mine?)
     (-> db
@@ -285,20 +269,6 @@
 (register-event-db
  :ui.game.mf/uncover-all-mines
  uncover-all-mines)
-
-(defn error-marked-cells
-  [db _]
-  (change-cells-state db
-                      (->> db
-                           :mine-field
-                           vals
-                           (filter #(and (= (:state %) :marked)
-                                         (-> % :mine? not))))
-                      :mark-error))
-
-(register-event-db
- :ui.game.mf/error-marked-cells
- error-marked-cells)
 
 ;; -- cofx Registrations -------------------------------------------------------
 ;;
