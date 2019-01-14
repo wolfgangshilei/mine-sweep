@@ -10,4 +10,4 @@
  ::initialize-db
  (fn [{:keys [db]}]
    {:db       default-db
-    :dispatch [:ui.game.mf/initialize-mine-field]}))
+    :dispatch [:ui.game/restart-game]}))

@@ -21,7 +21,7 @@
              :on-mouse-down  #(reset! pressed? true)
              :on-mouse-up    #(reset! pressed? false)
              :on-mouse-leave #(reset! pressed? false)
-             :on-click       #(rf/dispatch [:ui.game/update-game-state :reset])}])))
+             :on-click       #(rf/dispatch [:ui.game/restart-game])}])))
 
 (defn widgets-panel
   []

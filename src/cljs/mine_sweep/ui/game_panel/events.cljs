@@ -2,18 +2,23 @@
   (:require [re-frame.core :as rf]
             [mine-sweep.utils.re-frame :refer [register-event-fx register-event-db]]))
 
+(defn restart-game
+  [{:keys [db]} _]
+  {:db          db
+   ::stop-timer nil
+   :dispatch-n  [[::reset-timer]
+                 [:ui.game/update-game-state ::reset]
+                 [:ui.game.mf/initialize-mine-field]]})
+
 (register-event-fx
- ::restart-game
- (fn [{:keys [db]} _]
-   {:db          db
-    ::stop-timer nil
-    :dispatch-n  [[::reset-timer]
-                  [:ui.game.mf/initialize-mine-field]]}))
+ :ui.game/restart-game
+ restart-game)
 
 (defn set-level
-  [{:keys [db]} [_ level]]
-  {:db (assoc db :current-level level)
-   :dispatch [:ui.game/update-game-state :reset]})
+  [cofx [_ level]]
+  (-> cofx
+      restart-game
+      (assoc-in [:db :current-level] level)))
 
 (register-event-fx
  :ui.game/set-level
@@ -55,10 +60,9 @@
 (defn update-game-state
   [{:keys [db] :as fx} state]
   (case state
-    :reset
+    ::reset
     (-> fx
-        (assoc-in [:db :game-state] :reset)
-        (assoc :dispatch [::restart-game]))
+        (assoc-in [:db :game-state] :reset))
 
     :should-start?
     (if (= (:game-state db)
