@@ -13,11 +13,12 @@
                                :background-color common-styles/grey-bg-color}))
 
 (def ^private widget-text
-  {:font-size        "1.5rem"
-   :text-align       "center"
-   :user-select      "none"
-   :color            "red"
-   :background-color "black"})
+  (-> {:font-size        "1.5rem"
+       :text-align       "center"
+       :color            "red"
+       :background-color "black"
+       :cursor           "default"}
+      (common-styles/assoc-vendor-prefixed :user-select "none")))
 
 (def timer
   (merge widget-text {:width "2.5em"}))

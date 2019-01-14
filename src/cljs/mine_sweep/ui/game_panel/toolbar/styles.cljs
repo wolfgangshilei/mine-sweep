@@ -12,12 +12,12 @@
 
 (defn dropdown-menu-title
   [expanded?]
-  (merge {:outline          "none"
-          :padding          ".2em"
-          :line-height      1
-          :border           (gstr/istr "1px solid ~{common-styles/darkgrey-bg-color}")
-          :border-left      "0"
-          :border-top       "0"}
+  (merge {:outline      "none"
+          :padding      ".2em"
+          :line-height  1
+          :border       (gstr/istr "1px solid ~{common-styles/darkgrey-bg-color}")
+          :border-left  "0"
+          :border-top   "0"}
          (if expanded?
            {:background  drop-menu-selected-background
             :font-weight "bold"}
@@ -30,14 +30,16 @@
 
 (defn dropdown-menu-item
   [show?]
-  (merge  {:outline          "none"
-           :font-size        ".7em"
-           :padding          ".2em"
-           :text-align       "right"
-           :line-height      1
-           :z-index          1
-           :border           (gstr/istr "0 1px 1px solid ~{common-styles/darkgrey-bg-color}")
-           :background       drop-menu-selected-background}
+  (merge  {:position    "relative"
+           :z-index     1
+           :outline     "none"
+           :font-size   ".7em"
+           :padding     ".2em"
+           :margin      0
+           :text-align  "right"
+           :line-height 1
+           :border      (gstr/istr "0 1px 1px solid ~{common-styles/darkgrey-bg-color}")
+           :background  drop-menu-selected-background}
           dropdown-menu-text
           (when-not show? {:display "none"})))
 
@@ -45,8 +47,10 @@
   {:float "left"})
 
 (def toolbar
-  {:padding          "8px 0 0"
-   :height           "1.2em"
-   :margin-bottom    "10px"
-   :border-bottom    (gstr/istr "1px solid ~{common-styles/darkgrey-bg-color}")
-   :background-color "transparent"})
+  (-> {:padding          "8px 0 0"
+       :height           "1.2em"
+       :margin-bottom    "10px"
+       :border-bottom    (gstr/istr "1px solid ~{common-styles/darkgrey-bg-color}")
+       :background-color "transparent"
+       :cursor           "default"}
+      (common-styles/assoc-vendor-prefixed :user-select "none")))

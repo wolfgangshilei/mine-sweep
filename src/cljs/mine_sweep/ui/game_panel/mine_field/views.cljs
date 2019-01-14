@@ -28,9 +28,9 @@
   (let [cells-pos     (rf/subscribe [:ui.game.mf/cells-pos])
         current-level (rf/subscribe [:current-level])
         level-cfg     (get const/levels @current-level)]
-    (into [:section {:style (styles/mine-field level-cfg)
-                     :on-mouse-leave (fn [e]
-                                       (mouse-event-handler :leave-mine-field))}]
+    (into [:div {:style          (styles/mine-field level-cfg)
+                 :on-mouse-leave (fn [e]
+                                   (mouse-event-handler :leave-mine-field))}]
           (map #(vector cell-view {:pos                 %
                                    :cell-content        @(rf/subscribe [:ui.game.mf/cell-content %])
                                    :mouse-event-handler mouse-event-handler}) @cells-pos))))

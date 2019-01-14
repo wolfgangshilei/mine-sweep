@@ -58,10 +58,11 @@
          8 "#808080"}]
     (if (= content :mine)
       {:background (common-styles/inline-svg svg/mine)}
-      {:color            (get numbered-color content)
-       :text-align       "center"
-       :vertical-align   "center"
-       :user-select      "none"})))
+      (-> {:color          (get numbered-color content)
+           :text-align     "center"
+           :vertical-align "center"
+           :cursor         "default"}
+          (common-styles/assoc-vendor-prefixed :user-select "none")))))
 
 (defn cell
   [[state content]]

@@ -42,3 +42,16 @@
    (gstr/istr "url('data:image/svg+xml,~{svg}') center / 100% 100% no-repeat"))
   ([svg {:keys [width height]}]
    (gstr/istr "url('data:image/svg+xml,~{svg}') center / ~{width} ~{height} no-repeat")))
+
+(defn- vendor-prefixed
+  [property value]
+  (let [vendor-prefixes ["-moz-" "-o-" "-ms-" "-webkit-" ""]]
+    (-> (map #(-> %1
+                  (str (name property))
+                  keyword)
+             vendor-prefixes)
+        (zipmap (repeat value)))))
+
+(defn assoc-vendor-prefixed
+  [css-map property value]
+  (into css-map (vendor-prefixed property value)))
