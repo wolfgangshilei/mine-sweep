@@ -3,7 +3,7 @@
             [mine-sweep.utils.re-frame :refer [register-event-fx register-event-db]]))
 
 (defn restart-game
-  [{:keys [db]} _]
+  [{:keys [db]}]
   {:db          db
    ::stop-timer nil
    :dispatch-n  [[::reset-timer]
@@ -12,7 +12,8 @@
 
 (register-event-fx
  :ui.game/restart-game
- restart-game)
+ (fn [cofx _]
+   (restart-game cofx)))
 
 (defn set-level
   [cofx [_ level]]
