@@ -86,6 +86,11 @@
  [db]
  (assoc db :ui.game/mouse-event nil))
 
+(register-event-db
+ :ui.game.mf/clear-mouse-event
+ (fn [db _]
+   (clear-mouse-event db)))
+
 (defn toggle-investigate-neighbours
   [db {:keys [state] :as cell} {:keys [action with-self?]}]
   (if (#{:investigating :revealed} state)

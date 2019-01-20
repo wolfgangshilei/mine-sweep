@@ -12,7 +12,9 @@
          :on-mouse-down (fn [e]
                           (mouse-event-handler :down {:btn-code (.-button e) :pos pos}))
          :on-mouse-up (fn [e]
-                        #_(.stopPropagation e)
+                        ;; Prevent the event from bubbling up to the mine field's mouse-up
+                        ;; event handler once it has been handled by the cell's handler.
+                        (.stopPropagation e)
                         (mouse-event-handler :up {:btn-code (.-button e) :pos pos}))
          :on-mouse-enter (fn [_]
                            (mouse-event-handler :enter {:pos pos}))
@@ -29,6 +31,12 @@
         current-level (rf/subscribe [:current-level])
         level-cfg     (get const/levels @current-level)]
     (into [:div {:style          (styles/mine-field level-cfg)
+                 ;; The mouse's buttons (particularly the main button could be released
+                 ;; at the padding zone of the mine field. Such an event will not trigger
+                 ;; the event handlers registered on the cells and can result in corrupted state
+                 ;; transitions. It thus needs to be handled here separately.
+                 :on-mouse-up    (fn [e]
+                                   (rf/dispatch [:ui.game.mf/clear-mouse-event]))
                  :on-mouse-leave (fn [e]
                                    (mouse-event-handler :leave-mine-field))}]
           (map #(vector cell-view {:pos                 %
