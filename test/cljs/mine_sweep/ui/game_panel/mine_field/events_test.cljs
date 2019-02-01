@@ -12,7 +12,7 @@
 (s/def ::mine-field :ui.game/mine-field)
 (s/def ::non-neg-int? (s/and int? (complement neg?)))
 (s/def ::pos-int? (s/and int? pos?))
-(s/def ::random-gen-mines (s/coll-of ::non-neg-int? :kind vector?))
+(s/def ::random-gen-mines (s/coll-of ::non-neg-int?))
 
 (s/def ::random-gen-mines*-args (s/and (s/cat :n-cell pos-int? :n-mine pos-int?)
                                        #(> (:n-cell %) (:n-mine %))))
@@ -36,6 +36,7 @@
                        {:gen {::random-gen-mines*-args
                               random-gen-mines*-args-generator}})]
       (is (= true (-> result first :clojure.test.check/ret :result))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (s/def ::cell-pos-data map?)

@@ -282,13 +282,10 @@
 ;; -- cofx Registrations -------------------------------------------------------
 ;;
 (defn random-gen-mines*
-  "Randomly generate mines which is represeented as a vector
-  of n-mine random integers in (range n-cell)"
   [n-cell n-mine]
-  (let [xf (comp
-            (distinct)
-            (take n-mine))]
-    (transduce xf conj  (repeatedly #(rand-int n-cell)))))
+  (->> (range 0 n-cell)
+       (shuffle)
+       (take n-mine)))
 
 (defn random-gen-mines
   [{:keys [db] :as cofx} _]
