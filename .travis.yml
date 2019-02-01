@@ -3,4 +3,7 @@ lein: 2.8.1
 
 cache:
   directories: "$HOME/.m2"
-script: lein doo node test once
+before_script:
+- npm install
+script:
+- lein doo node test once

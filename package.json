@@ -1,0 +1,24 @@
+{
+  "name": "mine-sweep",
+  "version": "1.0.0",
+  "description": "A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wolfgangshilei/mine-sweep.git"
+  },
+  "author": "wolfgangshi@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wolfgangshilei/mine-sweep/issues"
+  },
+  "devDependencies": {
+    "xmlhttprequest": "^1.8.0"
+  }
+}

@@ -85,7 +85,8 @@
         win?  (-> fx
                   (assoc-in [:db :game-state] :win)
                   (assoc ::stop-timer nil
-                         :dispatch    [:ui.game.mf/mark-all-mines]))
+                         :dispatch-n  [[:ui.game.mf/mark-all-mines]
+                                       [:ui.auth/toggle-panel :login]]))
         :else fx))
 
     ;; Default

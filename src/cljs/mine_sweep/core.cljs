@@ -6,6 +6,7 @@
    [mine-sweep.events :as events]
    [mine-sweep.views :as views]
    [mine-sweep.config :as config]
+   [stylefy.core :as stylefy]
    ))
 
 
@@ -20,6 +21,7 @@
                   (.getElementById js/document "app")))
 
 (defn ^:export init []
+  (stylefy/init)
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root))

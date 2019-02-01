@@ -1,9 +1,13 @@
+
 (defproject mine-sweep "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.10.238"]
                  [reagent "0.7.0"]
                  [re-frame "0.10.5"]
-                 [funcool/cuerdas "2.0.5"]]
+                 [funcool/cuerdas "2.0.5"]
+                 [garden  "1.3.6"]
+                 [stylefy "1.11.0"]
+                 [cljs-ajax "0.8.0"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]]
 

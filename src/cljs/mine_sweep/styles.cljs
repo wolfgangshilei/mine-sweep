@@ -3,10 +3,16 @@
             [mine-sweep.ui.common.constants :as const])
   (:require-macros [cuerdas.core :as gstr]))
 
-(def main
+(def main-container
   {:flex             1
-   :display          "flex"
+   :display          "flex"})
+
+(defn main
+  [auth-panel]
+  {:display          "flex"
+   :flex             1
    :flex-direction   "column"
    :justify-content  "center"
    :background-color "#00FFFF"
-   :background       "url(img/bg-img.jpeg) center / cover"})
+   :background       "url(img/bg-img.jpeg) center / cover"
+   :filter           (when-not (= :none auth-panel) "blur(4px)")})
