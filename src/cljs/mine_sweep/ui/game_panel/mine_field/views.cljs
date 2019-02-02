@@ -20,10 +20,7 @@
                            (mouse-event-handler :enter {:pos pos}))
          :on-mouse-leave (fn [e]
                            (mouse-event-handler :leave {:pos pos}))}
-   (when (and (= (first cell-content)
-                 :revealed)
-              (-> cell-content second pos?))
-     (second cell-content))])
+   (when (pos? cell-content) cell-content)])
 
 (defn mine-field
   [{:keys [mouse-event-handler]}]

@@ -55,7 +55,8 @@
    :investigating {:cancel-investigate :covered
                    :reveal             :revealed
                    :hit-mine           :exploded}
-   :marked        {:toggle-mark        :covered}})
+   :marked        {:toggle-mark        :covered
+                   :cross              :wrongly-marked}})
 
 (defn new-state
   [old-state action]
@@ -267,9 +268,12 @@
 
 (defn uncover-all-mines
   [db _]
-  (change-cells-state db
-                     (->> db :mine-field vals (filter :mine?))
-                     :reveal))
+  (let [mine-cells  (->> db :mine-field vals (filter :mine?))
+        marked-cells (->> db :mine-field vals (filter #(= (:state %) :marked)))
+        wrongly-marked-cells (filter (complement :mine?) marked-cells)]
+    (-> db
+        (change-cells-state mine-cells :reveal)
+        (change-cells-state wrongly-marked-cells :cross))))
 
 (register-event-db
  :ui.game.mf/uncover-all-mines

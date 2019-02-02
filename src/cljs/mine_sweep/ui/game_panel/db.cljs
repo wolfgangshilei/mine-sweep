@@ -1,7 +1,7 @@
 (ns mine-sweep.ui.game-panel.db
   (:require [cljs.spec.alpha :as spec]))
 
-(spec/def ::state #{:covered :revealed :marked :exploded :investigating :error-marked})
+(spec/def ::state #{:covered :revealed :marked :exploded :investigating :wrongly-marked})
 (spec/def ::mine? boolean?)
 (spec/def ::pos (spec/cat :row (complement neg?) :column (complement neg?)))
 (spec/def ::neighbour ::pos)

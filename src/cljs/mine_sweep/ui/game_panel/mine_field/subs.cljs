@@ -26,18 +26,16 @@
 (rf/reg-sub
  :ui.game.mf/cell-content
  (fn [[_ pos]]
-   [(rf/subscribe [:ui.game.mf/cell-data pos])
-    (rf/subscribe [:ui.game.mf/game-state])])
- (fn [[cell game-state mine-neighbours-count] _]
+   [(rf/subscribe [:ui.game.mf/cell-data pos])])
+ (fn [[cell] _]
    (let [{:keys [state mine? mine-neighbours-count]} cell]
-     (case [state mine?]
-       [:revealed true]  [:revealed :mine]
-
-       [:revealed false] [:revealed mine-neighbours-count]
-
-       [:marked true] [:marked :flag]
-
-       [:marked false] [:marked (if (= game-state :lose) :cross-flag :flag)]
-
-       ;;Defalut
-       [state nil]))))
+     (case state
+       :revealed       (if mine?
+                         :mine
+                         mine-neighbours-count)
+       :marked         :flag
+       :wrongly-marked :cross-flag
+       :exploded       :red-mine
+       :investigating  :investigating
+       ;; Defalut state :covered
+       state))))
