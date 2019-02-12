@@ -6,6 +6,6 @@
                               :padding          "3px 10px 10px 10px"
                               :width            "min-content"
                               :background-color common-styles/grey-bg-color
-                              :margin           "0 auto"
+                              :margin           "0 auto 0 0"
                               :display          "flex"
                               :flex-flow        "column"}))

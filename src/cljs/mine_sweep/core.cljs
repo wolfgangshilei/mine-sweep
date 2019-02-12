@@ -5,13 +5,11 @@
    [mine-sweep.db]
    [mine-sweep.events :as events]
    [mine-sweep.views :as views]
-   [mine-sweep.config :as config]
-   [stylefy.core :as stylefy]
-   ))
+   [stylefy.core :as stylefy]))
 
 
 (defn dev-setup []
-  (when config/debug?
+  (when goog.DEBUG
     (enable-console-print!)
     (println "dev mode")))
 

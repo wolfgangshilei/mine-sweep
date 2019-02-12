@@ -60,37 +60,48 @@
 
 (defn update-game-state
   [{:keys [db] :as fx} state]
-  (case state
-    ::reset
-    (-> fx
-        (assoc-in [:db :game-state] :reset))
-
-    :should-start?
-    (if (= (:game-state db)
-           :reset)
+  (let [session (:ui.auth/session db)]
+    (case state
+      ::reset
       (-> fx
-          (assoc-in [:db :game-state] :ongoing)
-          (assoc ::start-timer nil))
-      fx)
+          (assoc-in [:db :game-state] :reset))
 
-    :should-end?
-    (let [lose?      (:ui.game.mf/hit-mine? db)
-          win?       (= (:ui.game.mf/non-mine-cells-count db)
-                        (-> db :ui.game.mf/revealed-cells-pos count))]
-      (cond
-        lose? (-> fx
-                  (assoc-in [:db :game-state] :lose)
-                  (assoc ::stop-timer nil
-                         :dispatch    [:ui.game.mf/uncover-all-mines]))
-        win?  (-> fx
-                  (assoc-in [:db :game-state] :win)
-                  (assoc ::stop-timer nil
-                         :dispatch-n  [[:ui.game.mf/mark-all-mines]
-                                       [:ui.auth/toggle-panel :login]]))
-        :else fx))
+      :should-start?
+      (if (= (:game-state db)
+             :reset)
+        (-> fx
+            (assoc-in [:db :game-state] :ongoing)
+            (assoc ::start-timer nil))
+        fx)
 
-    ;; Default
-    fx))
+      :should-end?
+      (let [lose?      (:ui.game.mf/hit-mine? db)
+            win?       (= (:ui.game.mf/non-mine-cells-count db)
+                          (-> db :ui.game.mf/revealed-cells-pos count))]
+        (cond
+          lose? (-> fx
+                    (assoc-in [:db :game-state] :lose)
+                    (assoc ::stop-timer nil
+                           :dispatch    [:ui.game.mf/uncover-all-mines]))
+          win?  (cond-> fx
+                    true
+                    (assoc-in [:db :game-state] :win)
+
+                    true
+                    (assoc ::stop-timer nil
+                           :dispatch-n  [[:ui.game.mf/mark-all-mines]])
+
+                    (not session)
+                    (update :dispatch-n conj [:ui.auth/toggle-panel :login])
+
+                    session
+                    (update :dispatch-n conj [:ui.record/create-record
+                                              (:ui.game/timer db)
+                                              (:current-level db)]))
+          :else fx))
+
+      ;; Default
+      fx)))
 
 (register-event-fx
  :ui.game/update-game-state

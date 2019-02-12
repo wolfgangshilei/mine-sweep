@@ -2,12 +2,13 @@
   (:require [re-frame.core :as rf]
             [mine-sweep.utils.re-frame :refer [register-event-fx
                                                register-event-db]]
-            [mine-sweep.api.auth :as auth-api]))
+            [mine-sweep.api.auth :as auth-api]
+            [mine-sweep.api.session :as session-api]
+            [mine-sweep.config :as config]))
 
 (rf/reg-fx
  ::server-login
  (fn [login-form]
-   (js/console.log "server login" login-form)
    (when login-form
      (auth-api/login
       login-form
@@ -17,7 +18,6 @@
 (rf/reg-fx
  ::server-signup
  (fn [signup-form]
-   (js/console.log "server signup" signup-form)
    (when signup-form
      (auth-api/signup
       signup-form
@@ -93,17 +93,30 @@
  :ui.auth/toggle-panel
  toggle-panel)
 
+(defn- clear-session
+  ([db]
+   (clear-session db nil))
+  ([db _]
+   (assoc db :ui.auth/session nil)))
+
+(register-event-db
+ :ui.auth/clear-session
+ clear-session)
+
 (defn- set-form-error
   [db reason]
   (-> db (assoc :ui.auth/form-submission-status :error
-                 :ui.auth/error-msg reason)))
+                :ui.auth/error-msg reason)))
 
 (defn- handle-auth-result-fx
   [{db :db} [_ {:keys [result reason] :as res}]]
   (if (= result "ok")
     {:db (assoc db :ui.auth/form-submission-status nil)
-     :dispatch [:ui.auth/toggle-panel :none]}
-    {:db (set-form-error db reason)}))
+     :dispatch [:ui.auth/toggle-panel :none]
+     :ui.auth/init-session nil}
+    {:db (-> db
+             (set-form-error reason)
+             (clear-session))}))
 
 (register-event-fx
  ::handle-login-result
@@ -111,17 +124,13 @@
 
 (defn handle-login-error
   [db [_ {:keys [status]}]]
-  (set-form-error db "Invalid username or password"))
+  (-> db
+      (set-form-error "Invalid username or password.")
+      (clear-session)))
 
 (register-event-db
  ::handle-login-error
  handle-login-error)
-
-(defn handle-signup-result
-  [db [_ {:keys [result reason] :as res}]]
-  (if (= result "ok")
-    (assoc db :ui.auth/form-submission-status nil)
-    (set-form-error db reason)))
 
 (register-event-fx
  ::handle-signup-result
@@ -129,26 +138,30 @@
 
 (defn handle-signup-error
   [db [_ res]]
-  #_(js/console.log "signup error:" (:status res))
   (-> db
-      (assoc :ui.auth/form-submission-status :error)))
+      (set-form-error "Invalid username or password.")
+      (clear-session)))
 
 (register-event-db
  ::handle-signup-error
  handle-signup-error)
 
-(register-event-db
+(register-event-fx
  ::init-session
- (fn [db [_ {:keys [result data reason] :as res}]]
+ (fn [{db :db} [_ {:keys [result data reason] :as res}]]
    (if (= result "ok")
-     (assoc db :ui.auth/session data)
-     db)))
+     {:db (assoc db :ui.auth/session data)
+      :dispatch [:ui.record/get-records (merge
+                                         (select-keys data [:username])
+                                         {:n        config/record-num
+                                          :order-by :latest})]}
+     {:db (clear-session db)})))
 
 (defn init-session
   [_]
-  (auth-api/init-session
+  (session-api/init-session
    #(rf/dispatch [::init-session %])
-   nil))
+   #(rf/dispatch [:ui.auth/clear-session])))
 
 (rf/reg-fx
  :ui.auth/init-session

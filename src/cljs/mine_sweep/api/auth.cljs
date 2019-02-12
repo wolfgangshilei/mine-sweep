@@ -30,12 +30,3 @@
            :error-handler error-handler
            :params        form}
           http-settings)))
-
-(def init-session-url (str auth-api "/session"))
-(defn init-session
-  [handler error-handler]
-  (GET
-   init-session-url
-   (merge {:handler       handler
-           :error-handler error-handler}
-          http-settings)))

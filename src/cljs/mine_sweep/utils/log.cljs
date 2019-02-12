@@ -1,6 +1,5 @@
-(ns mine-sweep.utils.log
-  (:require [mine-sweep.config :refer [debug?]]))
+(ns mine-sweep.utils.log)
 
 (defn log [& args]
-  (when debug?
-    (js/console.log args)))
+  (when goog.DEBUG
+    (apply println args)))
