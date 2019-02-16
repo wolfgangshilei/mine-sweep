@@ -83,21 +83,19 @@
                     (assoc-in [:db :game-state] :lose)
                     (assoc ::stop-timer nil
                            :dispatch    [:ui.game.mf/uncover-all-mines]))
-          win?  (cond-> fx
-                    true
-                    (assoc-in [:db :game-state] :win)
-
-                    true
-                    (assoc ::stop-timer nil
-                           :dispatch-n  [[:ui.game.mf/mark-all-mines]])
+          win?  (let [record {:record (:ui.game/timer db)
+                              :level  (:current-level db)}]
+                  (cond-> (-> fx
+                              (assoc-in [:db :game-state] :win)
+                              (assoc-in [:db :ui.record/last-unsubmitted] record)
+                              (assoc ::stop-timer nil
+                                     :dispatch-n  [[:ui.game.mf/mark-all-mines]]))
 
                     (not session)
                     (update :dispatch-n conj [:ui.auth/toggle-panel :login])
 
                     session
-                    (update :dispatch-n conj [:ui.record/create-record
-                                              (:ui.game/timer db)
-                                              (:current-level db)]))
+                    (update :dispatch-n conj [:ui.record/create-record])))
           :else fx))
 
       ;; Default

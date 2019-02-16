@@ -33,4 +33,5 @@
    :ui.auth/panel        :none
    :ui.auth/session      nil
 
-   :ui.record/records    {}})
+   :ui.record/records          {}
+   :ui.record/last-unsubmitted nil})

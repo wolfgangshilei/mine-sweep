@@ -111,8 +111,9 @@
 (defn- handle-auth-result-fx
   [{db :db} [_ {:keys [result reason] :as res}]]
   (if (= result "ok")
-    {:db (assoc db :ui.auth/form-submission-status nil)
-     :dispatch [:ui.auth/toggle-panel :none]
+    {:db                   (assoc db :ui.auth/form-submission-status nil)
+     :dispatch-n           [[:ui.auth/toggle-panel :none]
+                            [:ui.record/create-record]]
      :ui.auth/init-session nil}
     {:db (-> db
              (set-form-error reason)
@@ -122,29 +123,23 @@
  ::handle-login-result
  handle-auth-result-fx)
 
-(defn handle-login-error
-  [db [_ {:keys [status]}]]
-  (-> db
-      (set-form-error "Invalid username or password.")
-      (clear-session)))
-
 (register-event-db
  ::handle-login-error
- handle-login-error)
+ (fn [db [_ {:keys [status]}]]
+   (-> db
+       (set-form-error "Invalid username or password.")
+       (clear-session))) )
 
 (register-event-fx
  ::handle-signup-result
  handle-auth-result-fx)
 
-(defn handle-signup-error
-  [db [_ res]]
-  (-> db
-      (set-form-error "Invalid username or password.")
-      (clear-session)))
-
 (register-event-db
  ::handle-signup-error
- handle-signup-error)
+ (fn [db [_ res]]
+   (-> db
+       (set-form-error "Invalid username or password.")
+       (clear-session))))
 
 (register-event-fx
  ::init-session

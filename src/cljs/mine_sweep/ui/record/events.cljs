@@ -29,13 +29,12 @@
 
 (register-event-fx
  :ui.record/create-record
- (fn [{db :db} [_ record-time level]]
-   {:db db
-    ::server-create-record {:record record-time
-                            :level  level}}))
+ (fn [{db :db} _]
+   {:db                    db
+    ::server-create-record (:ui.record/last-unsubmitted db)}))
 
 (defn- update-my-stored-records
-  [db [_ record]]
+  [db record]
     (let [username (-> db :ui.auth/session :username)
           level    (-> record :level keyword)]
       (-> db
@@ -62,19 +61,23 @@
                                                   {:inserted_at "2019-02-12T14:40:41" :level "easy" :record 147}
                                                   {:inserted_at "2019-02-12T14:40:41" :level "easy" :record 157}]}
                                     :latest {}}}}
-          [nil {:inserted_at "2019-02-12T14:40:41" :level "easy" :record 100}]))
+          {:inserted_at "2019-02-12T14:40:41" :level "easy" :record 100}))
 
 (register-event-db
- ::update-my-stored-records
- update-my-stored-records)
+ ::create-record-success
+ (fn [db [_ new-record]]
+   (-> db
+       (update-my-stored-records new-record)
+       (assoc :ui.record/last-unsubmitted nil))))
 
 (rf/reg-fx
  ::server-create-record
  (fn [params]
-   (session-api/new-record
-    params
-    #(rf/dispatch [::update-my-stored-records (:data %)])
-    nil)))
+   (when params
+     (session-api/new-record
+      params
+      #((rf/dispatch [::create-record-success (:data %)]))
+      nil))))
 
 (comment (session-api/new-record
           {:record 188 :level :easy}
