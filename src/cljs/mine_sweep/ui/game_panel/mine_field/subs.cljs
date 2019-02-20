@@ -2,14 +2,9 @@
   (:require [re-frame.core :as rf]))
 
 (rf/reg-sub
- :ui.game.mf/game-state
- (fn [db _]
-   (:game-state db)))
-
-(rf/reg-sub
  :ui.game.mf/mine-field
  (fn [db _]
-   (:mine-field db)))
+   (:ui.game.mf/mine-field db)))
 
 (rf/reg-sub
  :ui.game.mf/cells-pos

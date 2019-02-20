@@ -4,6 +4,7 @@
             [mine-sweep.ui.game-panel.widgets.views :refer [widgets-panel]]
             [mine-sweep.ui.game-panel.toolbar.views :refer [toolbar]]
             [mine-sweep.ui.game-panel.styles :as styles]
+            [mine-sweep.ui.game-panel.subs]
             [mine-sweep.ui.common.constants :as const]))
 
 (defn game-panel [style]

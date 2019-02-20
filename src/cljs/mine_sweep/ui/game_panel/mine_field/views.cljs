@@ -25,7 +25,7 @@
 (defn mine-field
   [{:keys [mouse-event-handler]}]
   (let [cells-pos     (rf/subscribe [:ui.game.mf/cells-pos])
-        current-level (rf/subscribe [:current-level])
+        current-level (rf/subscribe [:ui.game/current-level])
         level-cfg     (get const/levels @current-level)]
     (into [:div {:style          (styles/mine-field level-cfg)
                  ;; The mouse's buttons (particularly the main button could be released

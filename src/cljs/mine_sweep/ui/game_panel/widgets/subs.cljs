@@ -11,7 +11,7 @@
 (rf/reg-sub
  ::total-mines-count
  (fn [db _]
-   (->> db :current-level (get const/levels) :n-mine)))
+   (->> db :ui.game/current-level (get const/levels) :n-mine)))
 
 (rf/reg-sub
  :ui.game.widget/remaining-mines-count
@@ -26,7 +26,7 @@
 (rf/reg-sub
  :ui.game.widget/reset-btn-background
  (fn [db _]
-   (let [{game-state :game-state mouse-event :ui.game/mouse-event} db]
+   (let [{:ui.game/keys [game-state mouse-event]} db]
      (cond
        (= game-state :win)   :cool
        (= game-state :lose)  :faint

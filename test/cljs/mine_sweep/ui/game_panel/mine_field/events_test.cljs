@@ -9,7 +9,7 @@
             [mine-sweep.ui.game-panel.db]))
 
 (s/def ::db :mine-sweep.db/db)
-(s/def ::mine-field :ui.game/mine-field)
+(s/def ::mine-field :ui.game.mf/mine-field)
 (s/def ::non-neg-int? (s/and int? (complement neg?)))
 (s/def ::pos-int? (s/and int? pos?))
 (s/def ::random-gen-mines (s/coll-of ::non-neg-int?))
@@ -85,7 +85,7 @@
   (testing "Test events/click-cell"
     (let [{test-db :db} (events/initialize-mine-field {:db default-db
                                                        :random-gen-mines [0 10 20 30 40 50 60 70 80]})
-          get-cell (fn [db pos] (get-in db [:mine-field pos]))
+          get-cell (fn [db pos] (get-in db [:ui.game.mf/mine-field pos]))
           mine-pos [3 3]
           empty-cell [0 8]
           db-mine-clicked (events/click-cell test-db (get-cell test-db mine-pos))

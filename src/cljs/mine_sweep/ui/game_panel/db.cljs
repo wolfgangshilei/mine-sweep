@@ -28,7 +28,7 @@
 (spec/def :ui.game/mouse-event (spec/nilable (spec/cat :mouse-event-id ::mouse-event-id
                                                 :cell (spec/spec ::cell))))
 
-(spec/def :ui.game/mine-field (spec/map-of ::pos ::cell))
+(spec/def :ui.game.mf/mine-field (spec/map-of ::pos ::cell))
 (spec/def :ui.game/game-state #{:ongoing :lose :win :reset})
 (spec/def :ui.game/current-level #{:hard :easy :medium})
 
@@ -42,7 +42,7 @@
 #_(spec/conform ::mine? true)
 #_(spec/explain ::neighbours [[1 8] [2 8] [1 8] [2 8] [1 8] [2 8] [1 8] [2 8]])
 
-#_(spec/conform :ui.game/mine-field {[0 0] {:state :covered, :mine? false, :neighbours '([1 1] [1 0] [0 1]), :pos [0 0]},
+#_(spec/conform :ui.game.mf/mine-field {[0 0] {:state :covered, :mine? false, :neighbours '([1 1] [1 0] [0 1]), :pos [0 0]},
                                      [0 1] {:state :covered, :mine? false, :neighbours '([1 2] [1 0] [1 1] [0 2] [0 0]), :pos [0 1]},
                                      [0 2] {:state :covered, :mine? false, :neighbours '([1 3] [1 1] [1 2] [0 3] [0 1]), :pos [0 2]},
                                      [0 3] {:state :covered, :mine? false, :neighbours '([1 4] [1 2] [1 3] [0 4] [0 2]), :pos [0 3]},

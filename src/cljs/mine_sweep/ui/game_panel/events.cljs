@@ -19,7 +19,7 @@
   [cofx [_ level]]
   (-> cofx
       restart-game
-      (assoc-in [:db :current-level] level)))
+      (assoc-in [:db :ui.game/current-level] level)))
 
 (register-event-fx
  :ui.game/set-level
@@ -64,13 +64,13 @@
     (case state
       ::reset
       (-> fx
-          (assoc-in [:db :game-state] :reset))
+          (assoc-in [:db :ui.game/game-state] :reset))
 
       :should-start?
-      (if (= (:game-state db)
+      (if (= (:ui.game/game-state db)
              :reset)
         (-> fx
-            (assoc-in [:db :game-state] :ongoing)
+            (assoc-in [:db :ui.game/game-state] :ongoing)
             (assoc ::start-timer nil))
         fx)
 
@@ -80,13 +80,13 @@
                           (-> db :ui.game.mf/revealed-cells-pos count))]
         (cond
           lose? (-> fx
-                    (assoc-in [:db :game-state] :lose)
+                    (assoc-in [:db :ui.game/game-state] :lose)
                     (assoc ::stop-timer nil
                            :dispatch    [:ui.game.mf/uncover-all-mines]))
           win?  (let [record {:record (:ui.game/timer db)
-                              :level  (:current-level db)}]
+                              :level  (:ui.game/current-level db)}]
                   (cond-> (-> fx
-                              (assoc-in [:db :game-state] :win)
+                              (assoc-in [:db :ui.game/game-state] :win)
                               (assoc-in [:db :ui.record/last-unsubmitted] record)
                               (assoc ::stop-timer nil
                                      :dispatch-n  [[:ui.game.mf/mark-all-mines]]))

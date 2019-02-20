@@ -8,11 +8,6 @@
    (:name db)))
 
 (rf/reg-sub
- :current-level
- (fn [db]
-   (:current-level db)))
-
-(rf/reg-sub
  :ui/auth-panel
  (fn [db]
    (:ui.auth/panel db)))

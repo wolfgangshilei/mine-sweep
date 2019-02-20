@@ -1,7 +1,6 @@
 (ns mine-sweep.ui.game-panel.toolbar.views
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [mine-sweep.ui.game-panel.toolbar.subs]
             [mine-sweep.ui.game-panel.toolbar.styles :as styles]))
 
 (defn- dropdown-menu-item
@@ -30,7 +29,7 @@
                   items))))))
 
 (defn toolbar []
-  (let [selected-level (rf/subscribe [:ui.game.tb/selected-level])]
+  (let [selected-level (rf/subscribe [:ui.game/current-level])]
     [:div {:style styles/toolbar}
      [dropdown-menu
       {:title             "levels"

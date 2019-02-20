@@ -22,7 +22,7 @@
                cells-pos-data))))
 
 (defn- neighbours
-  [{:keys [mine-field]} cell]
+  [{:ui.game.mf/keys [mine-field]} cell]
   (->  mine-field
        (select-keys (:neighbours cell))
        vals))
@@ -30,13 +30,13 @@
 (defn initialize-mine-field
   [{:keys [db random-gen-mines]}]
   (let [level-config (-> db
-                         :current-level
+                         :ui.game/current-level
                          const/config-for-level)
         {:keys [n-col n-row n-mine cells-pos-data]} level-config
         cells-data (init-cells-data :cells-pos-data cells-pos-data
                                     :mine-indexes   random-gen-mines)]
     {:db (assoc db
-                :mine-field                      cells-data
+                :ui.game.mf/mine-field           cells-data
                 :ui.game.mf/hit-mine?            false
                 :ui.game.mf/non-mine-cells-count (-> (* n-col n-row) (- n-mine))
                 :ui.game.mf/revealed-cells-pos   #{})}))
@@ -66,7 +66,7 @@
   [db {:keys [pos state mine?] :as cell} action]
   (let [new-state* (new-state state action)]
     (cond-> db
-      true (assoc-in [:mine-field pos :state] new-state*)
+      true (assoc-in [:ui.game.mf/mine-field pos :state] new-state*)
 
       (and (not mine?)
            (= :revealed new-state*))
@@ -132,8 +132,8 @@
 
 (defn toggle-mark
   [db cell]
-  (let [{mine-field :mine-field
-         level      :current-level} db
+  (let [{mine-field :ui.game.mf/mine-field
+         level      :ui.game/current-level} db
         {state :state}              cell
         total-mines                 (-> (get const/levels level) :n-mine)
         marked-cells                (->> mine-field vals (filter #(= (:state %) :marked)) count)]
@@ -142,7 +142,7 @@
       (change-cell-state db cell :toggle-mark)
       db)))
 
-(defn- update-game-state
+(defn- update-game-states
   [{:keys [db] :as fx} & states]
   (reduce (fn [fx state]
             (gp-events/update-game-state fx state))
@@ -185,7 +185,7 @@
       (-> {:db (-> db
                    clear-mouse-event
                    (click-cell cell))}
-          (update-game-state :should-start? :should-end?))
+          (update-game-states :should-start? :should-end?))
 
       [:aux-btn-down :aux-btn-up]
       {:db (clear-mouse-event db)}
@@ -199,7 +199,7 @@
       (-> {:db (-> db
                    clear-mouse-event
                    (sweep-or-cancel-investigate-neighbours cell))}
-          (update-game-state :should-end?))
+          (update-game-states :should-end?))
 
       ;; Default
       {:db (clear-mouse-event db)})))
@@ -216,14 +216,14 @@
     [:ignore nil]))
 
 (defn apply-in-allowed-game-states
-  [{:keys [game-state] :as db} fn & args]
+  [{:ui.game/keys [game-state] :as db} fn & args]
   (if-not (#{:win :lose} game-state)
     (apply fn (into [db] args))
     {:db db}))
 
 (defn mouse-event-handler
   [{:keys [db]} [_ mouse-event-id {:keys [pos] :as data}]]
-  (let [cell        (get-in db [:mine-field pos])
+  (let [cell        (get-in db [:ui.game.mf/mine-field pos])
         mouse-event (->mouse-event mouse-event-id (assoc data :cell cell))
         fx          (apply-in-allowed-game-states db handle-mouse-event mouse-event)]
     fx))
@@ -259,7 +259,7 @@
 (defn mark-all-mines
   [db _]
   (change-cells-state db
-                      (->> db :mine-field vals (filter :mine?))
+                      (->> db :ui.game.mf/mine-field vals (filter :mine?))
                       :force-mark))
 
 (register-event-db
@@ -268,8 +268,8 @@
 
 (defn uncover-all-mines
   [db _]
-  (let [mine-cells  (->> db :mine-field vals (filter :mine?))
-        marked-cells (->> db :mine-field vals (filter #(= (:state %) :marked)))
+  (let [mine-cells  (->> db :ui.game.mf/mine-field vals (filter :mine?))
+        marked-cells (->> db :ui.game.mf/mine-field vals (filter #(= (:state %) :marked)))
         wrongly-marked-cells (filter (complement :mine?) marked-cells)]
     (-> db
         (change-cells-state mine-cells :reveal)
@@ -289,7 +289,7 @@
 
 (defn random-gen-mines
   [{:keys [db] :as cofx} _]
-   (let [level-config (-> db :current-level const/config-for-level)
+   (let [level-config (-> db :ui.game/current-level const/config-for-level)
          {:keys [n-col n-row n-mine]} level-config
          mines (random-gen-mines* (* n-row n-col) n-mine)]
      (assoc cofx :random-gen-mines mines)))
