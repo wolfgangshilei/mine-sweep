@@ -7,7 +7,6 @@
    [mine-sweep.views :as views]
    [stylefy.core :as stylefy]))
 
-
 (defn dev-setup []
   (when goog.DEBUG
     (enable-console-print!)
@@ -18,7 +17,7 @@
   (reagent/render [views/main-panel]
                   (.getElementById js/document "app")))
 
-(defn ^:export init []
+(defn init []
   (stylefy/init)
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)

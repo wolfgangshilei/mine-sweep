@@ -16,6 +16,7 @@
   (-> {:font-size        "1.5rem"
        :text-align       "center"
        :color            "red"
+       :margin           0
        :background-color "black"
        :cursor           "default"}
       (common-styles/assoc-vendor-prefixed :user-select "none")))

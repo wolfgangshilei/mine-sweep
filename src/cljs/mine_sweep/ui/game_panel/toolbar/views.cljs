@@ -7,7 +7,7 @@
   [{:keys [text selected? show? on-select]}]
   [:button {:style    (styles/dropdown-menu-item show?)
             :on-click #(on-select text)}
-   [:text
+   [:p {:style styles/dropdown-menu-text}
     (when selected?
       [:span {:style styles/dropdown-menu-item-selected-mark} "*"])
     text]])

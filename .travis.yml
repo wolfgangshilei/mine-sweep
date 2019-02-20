@@ -1,9 +1,8 @@
 language: clojure
-lein: 2.8.1
 
 cache:
   directories: "$HOME/.m2"
-before_script:
+install:
 - npm install
 script:
-- lein doo node test once
+- node_modules/shadow-cljs/cli/runner.js compile test

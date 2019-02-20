@@ -5,7 +5,7 @@
             [garden.color :as color]))
 
 (def ^private dark-color
-  (color/rgba 66 62 62 .8))
+  (color/rgba 66 62 62 0.8))
 
 (def ^private light-color
   (color/rgb 255 255 255))
@@ -32,7 +32,8 @@
    :padding         ".7em"})
 
 (def title
-  {:font-size   "1.2em"
+  {:margin      0
+   :font-size   "1.2em"
    :font-weight "bold"})
 
 (def toggle-link

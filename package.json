@@ -19,6 +19,15 @@
     "url": "https://github.com/wolfgangshilei/mine-sweep/issues"
   },
   "devDependencies": {
-    "xmlhttprequest": "^1.8.0"
+    "xmlhttprequest": "^1.8.0",
+    "shadow-cljs": "^2.8.7"
+  },
+  "dependencies": {
+    "core-js": "^2.6.5",
+    "create-react-class": "^15.6.3",
+    "react": "^16.8.2",
+    "react-dom": "^16.8.2",
+    "react-transition-group": "^2.5.3",
+    "xregexp": "^4.2.4"
   }
 }

@@ -7,7 +7,7 @@
             [mine-sweep.ui.game-panel.subs]
             [mine-sweep.ui.common.constants :as const]))
 
-(defn game-panel [style]
+(defn game-panel [{:keys [style]}]
   [:div {:style           (merge style styles/panel)
          :on-mouse-down   (fn [e] (.preventDefault e))
          :on-context-menu (fn [e] (.preventDefault e))}

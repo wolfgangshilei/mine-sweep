@@ -34,7 +34,7 @@
    :width         "100%"
    :text-align    "center"
    :border-bottom "1px solid currentColor"
-   :margin-bottom ".5em"})
+   :margin        ".5em 0"})
 
 (def username
   {:color :crimson})

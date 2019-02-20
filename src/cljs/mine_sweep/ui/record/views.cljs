@@ -12,8 +12,7 @@
   [:div {:style (merge styles/record-panel
                        styles/flex-layout
                        style)}
-
-   [:text {:style styles/auth-text}
+   [:p {:style styles/auth-text}
     [:a {:style styles/auth-link
          :href "#"
          :on-click #(rf/dispatch [:ui.auth/toggle-panel :login])} "login"]
@@ -48,9 +47,9 @@
                                        (into rows (level-rows level level-records)))
                                      []
                                      records-data)]
-        [:div
+        [:<>
          [:div {:style styles/records-order-options}
-          [:text "records:"]
+          [:p {:style {:margin 0}} "records:"]
           [:label [:input {:type :radio
                            :name :records-type
                            :value :latest
@@ -86,7 +85,7 @@
   [:div {:style (merge styles/record-panel
                        styles/normal-layout
                        style)}
-   [:text {:style styles/username-text} (str "Hello, ")
+   [:p {:style styles/username-text} (str "Hello, ")
     [:span {:style styles/username} username] " !"]
    [record-board username records]])
 

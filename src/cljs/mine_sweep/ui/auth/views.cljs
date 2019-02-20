@@ -47,7 +47,7 @@
         panel-data        (get auth-panel-data panel)]
     [:div (stylefy/use-style (styles/auth-panel panel @disable?))
      [:div {:style styles/panel-header-wrapper}
-      [:text {:style styles/title} (:title-text panel-data)]
+      [:p {:style styles/title} (:title-text panel-data)]
       [:a {:style styles/toggle-link
            :href "#"
            :on-click #(when-not @disable? (rf/dispatch [:ui.auth/toggle-panel (:toggle-to panel-data)]))}

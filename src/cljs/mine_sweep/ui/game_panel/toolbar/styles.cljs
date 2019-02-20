@@ -26,6 +26,7 @@
 (def dropdown-menu-text
   {:white-space   "nowrap"
    :overflow      "hidden"
+   :margin        0
    :text-overflow "ellipsis"})
 
 (defn dropdown-menu-item

@@ -6,11 +6,11 @@
 
 (defn timer []
   (let [t (rf/subscribe [:ui.game.widget/timer])]
-    [:text {:style styles/timer} @t]))
+    [:p {:style styles/timer} @t]))
 
 (defn remaining-mine-counter []
   (let [n-remaining (rf/subscribe [:ui.game.widget/remaining-mines-count])]
-    [:text {:style styles/remaining-mine-counter} @n-remaining]))
+    [:p {:style styles/remaining-mine-counter} @n-remaining]))
 
 (defn reset-btn
   []
