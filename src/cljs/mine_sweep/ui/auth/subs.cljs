@@ -13,6 +13,14 @@
    (= :submitting status)))
 
 (rf/reg-sub
- :ui.auth/error-msg
+ ::error-msg-text
  (fn [db _]
    (:ui.auth/error-msg db)))
+
+(rf/reg-sub
+ :ui.auth/error-msg
+ :<- [::error-msg-text]
+ :<- [::form-submission-status]
+ (fn [[error-msg status]]
+   (when-not (= :submitting status)
+     error-msg)))
