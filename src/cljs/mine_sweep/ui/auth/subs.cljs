@@ -10,7 +10,7 @@
  :ui.auth/disable-auth-panel?
  :<- [::form-submission-status]
  (fn [status]
-   (= :submmiting status)))
+   (= :submitting status)))
 
 (rf/reg-sub
  :ui.auth/error-msg

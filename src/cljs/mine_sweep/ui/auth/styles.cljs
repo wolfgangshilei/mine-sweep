@@ -11,7 +11,7 @@
   (color/rgb 255 255 255))
 
 (defn auth-panel
-  [display]
+  [display disable?]
   {:display          (when (= display :none) :none)
    :position         "absolute"
    :width            "30%"
@@ -23,6 +23,7 @@
    :z-index          1
    :padding          "0 .5em 0"
    :background-color dark-color
+   :filter           (when disable? "brightness(70%)")
    :color            light-color})
 
 (def panel-header-wrapper

@@ -6,24 +6,23 @@
             [stylefy.core :as stylefy]))
 
 (defn form-input
-  [{:keys [label type on-blur disabled panel-display]}]
-  (let [value (r/atom "")]
+  [{:keys [label type on-blur disabled]}]
+  (let [!input (r/atom nil)]
     (r/create-class
      {:component-will-update
       (fn [this new-argv]
-        (when-let [reset-fn (-> (fnext new-argv) :reset)]
-          (let [prev-panel-display (-> (r/props this) :panel-display)
-                new-panel-display  (-> (fnext new-argv) :panel-display)]
-            (reset-fn prev-panel-display new-panel-display #(reset! value "")))))
+        (let [prev-panel-display (-> (r/props this) :panel-display)
+              new-panel-display  (-> (fnext new-argv) :panel-display)]
+          (when (not= prev-panel-display new-panel-display)
+             (set! (.-value @!input) ""))))
 
       :reagent-render
-      (fn [{:keys [label type on-blur disabled panel-display]}]
+      (fn [{:keys [label type on-blur disabled]}]
         [:div {:style styles/input-wrapper}
          [:label label]
          [:input (stylefy/use-style styles/form-input-style
                                     {:type     type
-                                     :value    @value
-                                     :on-input #(reset! value (-> % .-target .-value))
+                                     :ref      (fn [el] (reset! !input el))
                                      :disabled disabled
                                      :on-blur  on-blur})]])})))
 
@@ -45,16 +44,13 @@
   [panel]
   (let [disable?          (rf/subscribe [:ui.auth/disable-auth-panel?])
         error-msg         (rf/subscribe [:ui.auth/error-msg])
-        panel-data        (get auth-panel-data panel)
-        input-value-reset (fn [prev new fn]
-                            (when (not= prev new)
-                              (apply fn [])))]
-    [:div (stylefy/use-style (styles/auth-panel panel))
+        panel-data        (get auth-panel-data panel)]
+    [:div (stylefy/use-style (styles/auth-panel panel @disable?))
      [:div {:style styles/panel-header-wrapper}
       [:text {:style styles/title} (:title-text panel-data)]
       [:a {:style styles/toggle-link
            :href "#"
-           :on-click #(rf/dispatch [:ui.auth/toggle-panel (:toggle-to panel-data)])}
+           :on-click #(when-not @disable? (rf/dispatch [:ui.auth/toggle-panel (:toggle-to panel-data)]))}
        (:toggle-link-text panel-data)]]
      [:div {:style styles/error-message} @error-msg]
      (conj
@@ -64,7 +60,6 @@
                    :required      true
                    :disabled      @disable?
                    :panel-display panel
-                   :reset         input-value-reset
                    :on-blur       (fn [e]
                                     (rf/dispatch [(:update-event panel-data)
                                                   {:username
@@ -73,7 +68,6 @@
                    :type          :password
                    :disabled      @disable?
                    :panel-display panel
-                   :reset         input-value-reset
                    :on-blur       (fn [e]
                                     (rf/dispatch [(:update-event panel-data)
                                                   {:password
