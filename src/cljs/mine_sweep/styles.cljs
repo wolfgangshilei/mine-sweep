@@ -14,6 +14,5 @@
    :flex-direction   "row"
    :justify-content  "center"
    :align-items      "center"
-   :background-color "#00FFFF"
-   :background       "url(img/bg-img.jpeg) center / cover"
+   :background       "url(img/bg-img.jpeg) center / cover, linear-gradient(rgba(0,143,228,.5), rgba(196,137,123,.5))"
    :filter           (when-not (= :none auth-panel) "blur(4px)")})
