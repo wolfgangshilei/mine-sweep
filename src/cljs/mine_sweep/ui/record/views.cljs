@@ -5,17 +5,21 @@
             [mine-sweep.ui.record.subs]
             [mine-sweep.ui.record.events]
             [mine-sweep.ui.record.styles :as styles]
-            [mine-sweep.config :as config]))
+            [mine-sweep.config :as config]
+            [stylefy.core :as stylefy]
+            [mine-sweep.js-modules.react-transition-group :refer [css-transition]]))
 
 (defn auth-buttons
   [style]
   [:div {:style (merge styles/record-panel
                        styles/flex-layout
                        style)}
-   [:p {:style styles/auth-text}
-    [:a {:style styles/auth-link
-         :href "#"
-         :on-click #(rf/dispatch [:ui.auth/toggle-panel :login])} "login"]
+   [:div {:style styles/login-text}
+    [css-transition styles/login-link-transition
+     [:div (stylefy/use-style styles/login-link
+                              {
+                               :on-click #(rf/dispatch [:ui.auth/toggle-panel :login])})
+      "login"]]
     " to keep your records."]])
 
 (defn level-rows

@@ -1,4 +1,7 @@
-(ns mine-sweep.ui.record.styles)
+(ns mine-sweep.ui.record.styles
+  (:require-macros [cuerdas.core :as gstr])
+  (:require [mine-sweep.js-modules.react-transition-group :as rtg :include-macros true]
+            [stylefy.core :as stylefy]))
 
 (def record-panel
   {:margin           "0 7%"
@@ -16,15 +19,36 @@
 (def normal-layout
   {:padding ".5em 1em"})
 
-(def auth-text
+(def login-text
   {:margin    "3em auto"
    :font-size "1.1rem"})
 
-(def auth-link
-  {:font-size       "1.2rem"
+(def login-link
+  {:position        "relative"
+   :left            "-2.5em"
+   :bottom          "-1em"
+   :color           "blue"
+   :font-size       "1.4rem"
    :font-weight     "bold"
    :text-decoration "underline"
-   :margin          "auto"})
+   :margin          "auto"
+   ::stylefy/mode   {:hover {:cursor "pointer"}}})
+
+(def rotation-duration 700)
+
+(def rotation
+  {:appear {:transform-origin  "left bottom"
+            :transform "scale(.1, .1)"}
+   :appear-active {:transform  "scale(1, 1)"
+                   :transition (gstr/istr "all ~{rotation-duration}ms cubic-bezier(.65, -0.58, .44, 3.85)")
+                   :transition-delay "800ms"}})
+
+(rtg/def-transition!
+  login-link-transition
+  rotation
+  {:timeout {:appear 800}
+   :appear  true
+   :in      true})
 
 (def username-text
   {:font-size     "1.5em"

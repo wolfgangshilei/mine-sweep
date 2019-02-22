@@ -11,16 +11,13 @@
   (color/rgb 255 255 255))
 
 (defn auth-panel
-  [display disable?]
-  {:display          (when (= display :none) :none)
-   :position         "absolute"
+  [disable?]
+  {:position         "absolute"
    :width            "30%"
    :border           "2px solid #00FFFF"
    :left             "50%"
    :top              "50%"
-   :transform        "translate(-50%,-50%)"
    :border-radius    "5px"
-   :z-index          1
    :padding          "0 .5em 0"
    :background-color dark-color
    :filter           (when disable? "brightness(70%)")

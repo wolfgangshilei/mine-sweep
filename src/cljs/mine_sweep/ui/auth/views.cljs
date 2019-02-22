@@ -45,7 +45,7 @@
   (let [disable?          (rf/subscribe [:ui.auth/disable-auth-panel?])
         error-msg         (rf/subscribe [:ui.auth/error-msg])
         panel-data        (get auth-panel-data panel)]
-    [:div (stylefy/use-style (styles/auth-panel panel @disable?))
+    [:div (stylefy/use-style (styles/auth-panel @disable?))
      [:div {:style styles/panel-header-wrapper}
       [:p {:style styles/title} (:title-text panel-data)]
       [:a {:style styles/toggle-link
