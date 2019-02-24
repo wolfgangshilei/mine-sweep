@@ -17,6 +17,7 @@
    :border           "2px solid #00FFFF"
    :left             "50%"
    :top              "50%"
+   :transform        "translate(-50%, -50%)"
    :border-radius    "5px"
    :padding          "0 .5em 0"
    :background-color dark-color

@@ -21,7 +21,7 @@
 
 (def fade-in-duration 400)
 (def fade-in-out-duration
-  {:enter 250
+  {:enter 200
    :exit  150})
 
 (def fade-in
@@ -37,19 +37,14 @@
    :in      true})
 
 (def fade-in-out
-  {:enter        {:opacity    0
-                  :transform  "translate(-100%, -50%)"}
+  {:enter        {:opacity    0}
    :enter-active {:opacity    1
-                  :transform  "translate(-50%, -50%)"
-                  :transition (gstr/istr "all ~{(:enter fade-in-out-duration)}ms linear")}
-   :enter-done   {:transform  "translate(-50%, -50%)"}
-   :exit         {:opacity    1
-                  :transform  "translate(-50%, -50%)"}
+                  :transition (gstr/istr "all ~{(:enter fade-in-out-duration)}ms ease-in")}
+   :enter-done   {}
+   :exit         {:opacity    1}
    :exit-active  {:opacity    0
-                  :transform  "translate(-50%, -200%)"
                   :transition (gstr/istr "all ~{(:exit fade-in-out-duration)}ms linear")}
-   :exit-done    {:opacity    0
-                  :transform  "translate(-50%, -200%)"}})
+   :exit-done    {:opacity    0}})
 
 (rtg/def-transition!
   auth-panel-transition
