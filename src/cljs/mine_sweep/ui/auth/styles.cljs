@@ -13,7 +13,7 @@
 (defn auth-panel
   [disable?]
   {:position         "absolute"
-   :width            "30%"
+   :width            "35%"
    :border           "2px solid #00FFFF"
    :left             "50%"
    :top              "50%"
@@ -36,41 +36,55 @@
 
 (def toggle-link
   {:font-size ".8em"
-   :color "currentColor"})
+   :color     "currentColor"})
 
 (def error-message
   {:margin-bottom "1em"
-   :text-align "center"
-   :color "red"
-   :font-size ".9em"})
+   :text-align    "center"
+   :color         "red"
+   :font-size     ".9em"})
 
 (def form-body
   {:margin-bottom "1em"
    :padding       "0 1em 0"})
 
+(def form-input-error
+  {:margin      0
+   :padding     ".3em 0"
+   :font-family "\"Gill Sans\", sans-serif"
+   :color       "red"
+   :white-space "pre-wrap"})
+
 (def input-wrapper
-  {:margin-bottom "1em"
-   :display "flex"
+  {:margin-bottom  "1em"
+   :display        "flex"
    :flex-direction "column"})
 
-(def form-input-style
-  {:background-color    (color/darken dark-color 3)
-   :background-image    "linear-gradient(currentColor, currentColor)"
-   :background-clip     "border-box"
-   :background-origin   "border-box"
-   :background-position "bottom left"
-   :background-size     "0% 1px"
-   :background-repeat   "no-repeat"
-   :float               "right"
-   :border              :none
-   :border-bottom       "2px solid transparent"
-   :transition          "background-size .2s linear"
-   :color               "currentColor"
-   :margin-top          ".5em"
-   ::stylefy/mode       {:focus {:background-color (color/darken dark-color 7)
-                                 :background-size  "100% 2px"
-                                 :outline          :none
-                                 :caret-color      light-color}}})
+(defn form-input-style
+  [error]
+  (let [error-bg-color (color/rgba 233 10 10 0.3)]
+    {:background-color    (if error
+                            error-bg-color
+                            (color/darken dark-color 3))
+     :background-image    "linear-gradient(currentColor, currentColor)"
+     :background-clip     "border-box"
+     :background-origin   "border-box"
+     :background-position "bottom left"
+     :background-size     "0% 1px"
+     :background-repeat   "no-repeat"
+     :float               "right"
+     :border              :none
+     :border-radius       ".3em"
+     :border-bottom       "2px solid transparent"
+     :transition          "background-size .2s linear"
+     :color               "currentColor"
+     :margin-top          ".5em"
+     ::stylefy/mode       {:focus {:background-color (if error
+                                                       (color/opacify error-bg-color 0.4)
+                                                       (color/darken dark-color 7))
+                                   :background-size  "100% 2px"
+                                   :outline          :none
+                                   :caret-color      light-color}}}))
 
 (def form-btns-wrapper
   {:margin         "1em"

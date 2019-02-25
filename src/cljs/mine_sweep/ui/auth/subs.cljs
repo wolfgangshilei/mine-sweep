@@ -12,14 +12,34 @@
  (fn [status]
    (= :submitting status)))
 
-(rf/reg-sub
- ::error-msg-text
- (fn [db _]
-   (:ui.auth/error-msg db)))
+(defn- status->text
+  [http-status]
+  (case http-status
+    nil nil
+    (401 400) "Wrong username or password"
+    "Server is now unavailable, please try it again later"))
+
+(defn- flatten-text
+  [error-list field]
+  (when error-list
+    (reduce #(str %1 field " " %2 "\n") "" error-list)))
+
+(defn format-auth-form-errors
+  [errors]
+  (-> errors
+      (update :http-status status->text)
+      (update :username flatten-text "username")
+      (update :password flatten-text "password")))
 
 (rf/reg-sub
- :ui.auth/error-msg
- :<- [::error-msg-text]
+ ::errors
+ (fn [db _]
+   (when-let [errors (:ui.auth/errors db)]
+     (format-auth-form-errors errors))))
+
+(rf/reg-sub
+ :ui.auth/errors
+ :<- [::errors]
  :<- [::form-submission-status]
  (fn [[error-msg status]]
    (when-not (= :submitting status)

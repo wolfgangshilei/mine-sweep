@@ -9,20 +9,18 @@
 (rf/reg-fx
  ::server-login
  (fn [login-form]
-   (when login-form
-     (auth-api/login
-      login-form
-      #(rf/dispatch [::handle-login-result %])
-      #(rf/dispatch [::handle-login-error %])))))
+   (auth-api/login
+    login-form
+    #(rf/dispatch [::handle-login-result %])
+    #(rf/dispatch [::handle-auth-error %]))))
 
 (rf/reg-fx
  ::server-signup
  (fn [signup-form]
-   (when signup-form
-     (auth-api/signup
-      signup-form
-      #(rf/dispatch [::handle-signup-result %])
-      #(rf/dispatch [::handle-signup-error %])))))
+   (auth-api/signup
+    signup-form
+    #(rf/dispatch [::handle-signup-result %])
+    #(rf/dispatch [::handle-auth-error %]))))
 
 (defn update-login-form
   [db [_ {:keys [username password]}]]
@@ -53,13 +51,9 @@
 (defn submit-login-form
   [{:keys [db]} _]
   (let [login-form (get db :ui.auth/login-form)]
-    (if login-form
-      {:db (-> db
-               (assoc :ui.auth/form-submission-status :submitting))
-       ::server-login login-form}
-      {:db (-> db
-               (assoc :ui.auth/form-submission-status :error
-                      :ui.auth/error-msg              "Fill in username and password."))})))
+    {:db (-> db
+             (assoc :ui.auth/form-submission-status :submitting))
+     ::server-login login-form}))
 
 (register-event-fx
  :ui.auth/submit-login-form
@@ -68,13 +62,9 @@
 (defn submit-signup-form
   [{:keys [db]} _]
   (let [signup-form (get db :ui.auth/signup-form)]
-    (if signup-form
-      {:db (-> db
-               (assoc :ui.auth/form-submission-status :submitting))
-       ::server-signup signup-form}
-      {:db (-> db
-               (assoc :ui.auth/form-submission-status :error
-                      :ui.auth/error-msg              "Fill in username and password."))})))
+    {:db (-> db
+             (assoc :ui.auth/form-submission-status :submitting))
+     ::server-signup signup-form}))
 
 (register-event-fx
  :ui.auth/submit-signup-form
@@ -85,7 +75,7 @@
   (assoc db
          :ui.auth/panel panel
          :ui.auth/form-submission-status nil
-         :ui.auth/error-msg nil
+         :ui.auth/errors nil
          :ui.auth/login-form nil
          :ui.auth/signup-form nil))
 
@@ -106,7 +96,7 @@
 (defn- set-form-error
   [db reason]
   (-> db (assoc :ui.auth/form-submission-status :error
-                :ui.auth/error-msg reason)))
+                :ui.auth/errors reason)))
 
 (defn- handle-auth-result-fx
   [{db :db} [_ {:keys [result reason] :as res}]]
@@ -124,22 +114,15 @@
  handle-auth-result-fx)
 
 (register-event-db
- ::handle-login-error
+ ::handle-auth-error
  (fn [db [_ {:keys [status]}]]
    (-> db
-       (set-form-error "Invalid username or password.")
+       (set-form-error {:http-status status})
        (clear-session))) )
 
 (register-event-fx
  ::handle-signup-result
  handle-auth-result-fx)
-
-(register-event-db
- ::handle-signup-error
- (fn [db [_ res]]
-   (-> db
-       (set-form-error "Invalid username or password.")
-       (clear-session))))
 
 (register-event-fx
  ::init-session

@@ -5,7 +5,7 @@
             [mine-sweep.ui.auth.subs]
             [stylefy.core :as stylefy]))
 
-(defn form-input
+(defn form-field
   [{:keys [label type on-blur disabled]}]
   (let [!input (r/atom nil)]
     (r/create-class
@@ -17,14 +17,15 @@
              (set! (.-value @!input) ""))))
 
       :reagent-render
-      (fn [{:keys [label type on-blur disabled]}]
+      (fn [{:keys [label type on-blur disabled error-text]}]
         [:div {:style styles/input-wrapper}
          [:label label]
-         [:input (stylefy/use-style styles/form-input-style
+         [:input (stylefy/use-style (styles/form-input-style error-text)
                                     {:type     type
                                      :ref      (fn [el] (reset! !input el))
                                      :disabled disabled
-                                     :on-blur  on-blur})]])})))
+                                     :on-blur  on-blur})]
+         (when error-text [:p {:style styles/form-input-error} error-text])])})))
 
 (def auth-panel-data
   {:login  {:title-text       "Login"
@@ -42,9 +43,9 @@
 
 (defn auth-panel
   [panel]
-  (let [disable?          (rf/subscribe [:ui.auth/disable-auth-panel?])
-        error-msg         (rf/subscribe [:ui.auth/error-msg])
-        panel-data        (get auth-panel-data panel)]
+  (let [disable?   (rf/subscribe [:ui.auth/disable-auth-panel?])
+        errors     (rf/subscribe [:ui.auth/errors])
+        panel-data (get auth-panel-data panel)]
     [:div (stylefy/use-style (styles/auth-panel @disable?))
      [:div {:style styles/panel-header-wrapper}
       [:p {:style styles/title} (:title-text panel-data)]
@@ -52,22 +53,24 @@
            :href "#"
            :on-click #(when-not @disable? (rf/dispatch [:ui.auth/toggle-panel (:toggle-to panel-data)]))}
        (:toggle-link-text panel-data)]]
-     [:div {:style styles/error-message} @error-msg]
+     [:div {:style styles/error-message} (:http-status @errors)]
      (conj
       [:form {:style styles/form-body}]
-      [form-input {:label         "Username:"
+      [form-field{:label         "Username:"
                    :type          :text
                    :required      true
                    :disabled      @disable?
                    :panel-display panel
+                   :error-text    (:username @errors)
                    :on-blur       (fn [e]
                                     (rf/dispatch [(:update-event panel-data)
                                                   {:username
                                                    (-> e .-target .-value)}]))}]
-      [form-input {:label         "Password:"
+      [form-field {:label         "Password:"
                    :type          :password
                    :disabled      @disable?
                    :panel-display panel
+                   :error-text    (:password @errors)
                    :on-blur       (fn [e]
                                     (rf/dispatch [(:update-event panel-data)
                                                   {:password
