@@ -6,14 +6,13 @@
             [mine-sweep.ui.record.events]
             [mine-sweep.ui.record.styles :as styles]
             [mine-sweep.config :as config]
-            [stylefy.core :as stylefy]
+            [mine-sweep.ui.record.tabs.views :as tabs-view]
+            [mine-sweep.ui.record.table.views :as table]
             [mine-sweep.js-modules.react-transition-group :refer [css-transition]]))
 
 (defn auth-buttons
   [style]
-  [:div {:style (merge styles/record-panel
-                       styles/flex-layout
-                       style)}
+  [:div {:style styles/flex-layout}
    [:div {:style styles/login-text}
     [css-transition styles/login-link-transition
      [:div (stylefy/use-style styles/login-link
@@ -22,35 +21,13 @@
       "login"]]
     " to keep your records."]])
 
-(defn level-rows
-  [level level-records]
-  (let [row-num (count level-records)]
-    (reduce-kv (fn [acc idx {:keys [row_number record inserted_at]}]
-                 (conj acc
-                       [:tr
-                        (when (zero? idx)
-                          [:td {:style styles/record-table-col-level
-                                :row-span row-num}
-                           level])
-                        [:td {:style styles/record-table-col-finish-time}
-                         (-> record (/ 10) (str "s"))]
-                        [:td {:style styles/record-table-col-datetime}
-                         (clojure.string/replace-first inserted_at "T" " ")]]))
-               []
-               level-records)))
 
-(comment (level-rows :easy [{:record 14 :inserted_at "2019-02-11T09:05:13" :row_number 1}
-                            {:record 14 :inserted_at "2019-02-11T09:05:13" :row_number 2}]))
-
-(defn record-board
+(defn personal-record-board
   [username records]
   (let [records-order (r/atom :latest)]
     (fn [username records]
-      (let [records-data  (get records @records-order)
-            rows          (reduce-kv (fn [rows level level-records]
-                                       (into rows (level-rows level level-records)))
-                                     []
-                                     records-data)]
+      (let [records-data   (get records @records-order)
+            rows-per-level (:user config/records-per-level)]
         [:<>
          [:div {:style styles/records-order-options}
           [:p {:style {:margin 0}} "records:"]
@@ -59,44 +36,56 @@
                            :value :latest
                            :on-change #(do (reset! records-order :latest)
                                            (rf/dispatch [:ui.record/get-records {:username username
-                                                                                 :n        config/record-num
+                                                                                 :n        rows-per-level
                                                                                  :order-by :latest}]))
                            :checked (= @records-order :latest)}]
-           (str "latest-" config/record-num)]
+           (str "latest-" rows-per-level)]
           [:label [:input {:type :radio
                            :name :records-type
                            :value :best
                            :on-change #(do (reset! records-order :best)
                                            (rf/dispatch [:ui.record/get-records {:username username
-                                                                                 :n        config/record-num
+                                                                                 :n        rows-per-level
                                                                                  :order-by :best}]))
                            :checked (= @records-order :best)}]
-           (str "best-" config/record-num)]]
-         [:table {:style styles/record-table}
-          (into
-           [:tbody
-            [:tr {:style styles/record-table-header}
-             [:th {:style styles/record-table-col-level} "level"]
-             [:th {:style styles/record-table-col-finish-time} "finish time"]
-             [:th {:style styles/record-table-col-datetime} "date"]]]
-           rows)]]))))
+           (str "best-" rows-per-level)]]
+         [table/table {:records-data   records-data
+                       :hide-username? true}]]))))
 
-(comment (record-board {:latest {:easy [{:record 14 :inserted_at "2019-02-11T09:05:13"}
-                                        {:record 14 :inserted_at "2019-02-11T09:05:13"}]}}))
+(comment (personal-record-board {:latest {:easy [{:record 14 :inserted_at "2019-02-11T09:05:13"}
+                                                 {:record 14 :inserted_at "2019-02-11T09:05:13"}]}}))
 
-(defn user-info-board
-  [{:keys [records username style]}]
-  [:div {:style (merge styles/record-panel
-                       styles/normal-layout
-                       style)}
-   [:p {:style styles/username-text} (str "Hello, ")
-    [:span {:style styles/username} username] " !"]
-   [record-board username records]])
+(defn all-time-best
+  [{:keys [records]}]
+  [:div {:style styles/normal-layout}
+   [table/table {:records-data   (:best records)
+                 :hide-username? false}]])
+
+(defn personal-records
+  [{:keys [records username]}]
+  [:div {:style styles/normal-layout}
+   [personal-record-board username records]])
 
 (defn record-panel
   [{:keys [style] :as params}]
   (let [username (rf/subscribe [:ui.record/my-username])]
-    (if @username
-      [user-info-board (into params {:username @username
-                                     :records  @(rf/subscribe [:ui.record/records @username])})]
-      [auth-buttons style])))
+    [:div (stylefy/use-style (merge style
+                                    styles/record-panel))
+     [tabs-view/tabs {:tabs [{:label "all time best"
+                              :on-select #(rf/dispatch [:ui.record/get-all-time-best-records
+                                                        {:username :all-time-best
+                                                         :n        (:all-time-best config/records-per-level)
+                                                         :order-by :best}])}
+                             {:label (str (if @username
+                                            (str @username "'s")
+                                            "my")
+                                          " records")
+                              :on-select #(when @username
+                                            (rf/dispatch [:ui.record/get-records {:username @username
+                                                                                  :n        (:user config/records-per-level)
+                                                                                  :order-by :latest}]))}]}
+      [all-time-best {:records @(rf/subscribe [:ui.record/records :all-time-best])}]
+      (if @username
+        [personal-records {:username @username
+                           :records  @(rf/subscribe [:ui.record/records @username])}]
+        [auth-buttons])]]))

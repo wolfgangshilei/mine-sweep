@@ -128,11 +128,7 @@
  ::init-session
  (fn [{db :db} [_ {:keys [result data reason] :as res}]]
    (if (= result "ok")
-     {:db (assoc db :ui.auth/session data)
-      :dispatch [:ui.record/get-records (merge
-                                         (select-keys data [:username])
-                                         {:n        config/record-num
-                                          :order-by :latest})]}
+     {:db (assoc db :ui.auth/session data)}
      {:db (clear-session db)})))
 
 (defn init-session

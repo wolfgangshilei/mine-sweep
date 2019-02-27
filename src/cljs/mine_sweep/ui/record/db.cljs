@@ -1,7 +1,7 @@
 (ns mine-sweep.ui.record.db
   (:require [cljs.spec.alpha :as spec]))
 
-(spec/def ::username string?)
+(spec/def ::username (spec/or :userspace-name string? :system-name #{:all-time-best}))
 (spec/def ::order #{:latest :best})
 (spec/def ::level #{:easy :medium :hard "easy" "medium" "hard"})
 (spec/def ::inserted_at string?)

@@ -1,14 +1,18 @@
 (ns mine-sweep.ui.record.styles
   (:require-macros [cuerdas.core :as gstr])
   (:require [mine-sweep.js-modules.react-transition-group :as rtg :include-macros true]
-            [stylefy.core :as stylefy]))
+            [stylefy.core :as stylefy]
+            [garden.color :as color]))
+
+(def record-panel-bg-color
+  (color/hsla 0 0 0.5 0.5))
 
 (def record-panel
   {:margin           "0 7%"
    :min-height       "80%"
    :border-radius    "4px"
    :color            "white"
-   :background-color "hsla(0,0%,50%,.5)"})
+   :background-color record-panel-bg-color})
 
 (def flex-layout
   {:display         "flex"
@@ -34,31 +38,20 @@
    :margin          "auto"
    ::stylefy/mode   {:hover {:cursor "pointer"}}})
 
-(def rotation-duration 700)
+(def scale-duration 500)
 
-(def rotation
+(def scale
   {:appear {:transform-origin  "left bottom"
             :transform "scale(.1, .1)"}
    :appear-active {:transform  "scale(1, 1)"
-                   :transition (gstr/istr "all ~{rotation-duration}ms cubic-bezier(.65, -0.58, .44, 3.85)")
-                   :transition-delay "800ms"}})
+                   :transition (gstr/istr "all ~{scale-duration}ms cubic-bezier(.65, -0.58, .44, 3.85)")}})
 
 (rtg/def-transition!
   login-link-transition
-  rotation
-  {:timeout {:appear 800}
+  scale
+  {:timeout {:appear scale-duration}
    :appear  true
    :in      true})
-
-(def username-text
-  {:font-size     "1.5em"
-   :font-weight   "bold"
-   :color         "currentColor"
-   :display       "block"
-   :width         "100%"
-   :text-align    "center"
-   :border-bottom "1px solid currentColor"
-   :margin        ".5em 0"})
 
 (def username
   {:color :crimson})
@@ -70,26 +63,3 @@
    :font-size       "1.2em"
    :color           "currentColor"
    :margin-bottom   ".5em"})
-
-(def record-table
-  {:border-collapse "collapse"
-   :width           "100%"
-   :table-layout    "fixed"
-   :text-align      "center"})
-
-(def record-table-header
-  {:background-color "#CCC"
-   :color            "black"
-   :font-size        "1.1em"})
-
-(def record-table-col-level
-  {:width  "20%"
-   :border "1px solid #ddd"})
-
-(def record-table-col-finish-time
-  {:width "25%"
-   :border "1px solid #ddd"})
-
-(def record-table-col-datetime
-  {:text-overflow "ellipsis"
-   :border        "1px solid #ddd"})

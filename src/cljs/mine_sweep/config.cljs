@@ -2,4 +2,6 @@
 
 #_(def debug? false)
 
-(def record-num 5)
+(def records-per-level
+  {:user          5
+   :all-time-best 10})

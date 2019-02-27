@@ -6,14 +6,32 @@
             [mine-sweep.config :as config]
             [mine-sweep.utils.log :refer [log]]))
 
-(defn store-records
-  [db [_ records {:keys [username order-by]}]]
-  (assoc-in db [:ui.record/records username order-by] records))
-
+;; All time best is stored under a special key :all-time-best which is a keyword,
+;; not a string; normal username is a stirng, so collisions can be avoided.
 (register-event-db
  ::store-records
- store-records)
+ (fn [db [_ records {:keys [username order-by]}]]
+   (assoc-in db [:ui.record/records username order-by] records)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; get-all-time-best
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(register-event-fx
+ :ui.record/get-all-time-best-records
+ (fn [{db :db} [_ params]]
+   {:db                        db
+    ::server-get-all-time-best params}))
+
+(rf/reg-fx
+ ::server-get-all-time-best
+ (fn [params]
+   (session-api/get-all-time-best params
+                                  #(rf/dispatch [::store-records (:data %) params])
+                                  nil)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; get-records
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (register-event-fx
  :ui.record/get-records
  (fn [{db :db} [_ params]]
@@ -27,33 +45,45 @@
                             #(rf/dispatch [::store-records (:data %) params])
                             nil)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; create-record
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (register-event-fx
  :ui.record/create-record
  (fn [{db :db} _]
    {:db                    db
     ::server-create-record (:ui.record/last-unsubmitted db)}))
 
-(defn- update-my-stored-records
-  [db record]
-    (let [username (-> db :ui.auth/session :username)
-          level    (-> record :level keyword)]
-      (-> db
+(defn- update-stored-records-by-username
+  [db record username]
+    (let [level       (-> record :level keyword)
+          n-per-level ((if (string? username) :user :all-time-best) config/records-per-level)]
+      (cond-> db
           ;; add new record in the best list, sort by record and take first n.
-          (update-in [:ui.record/records username :best level]
-                     #(as-> % rs
-                        (conj rs record)
-                        (sort-by :record rs)
-                        (take config/record-num rs)
-                        (vec rs)))
+        true
+        (update-in [:ui.record/records username :best level]
+                   #(as-> % rs
+                      (conj rs record)
+                      (sort-by :record rs)
+                      (take n-per-level rs)
+                      (vec rs)))
 
+        (when-not (= username :all-time-best))
           ;; add new record in the latest list at the beginning, and take first n.
           (update-in [:ui.record/records username :latest level]
                      #(->> %
                        (into [record])
-                       (take config/record-num)
+                       (take n-per-level)
                        vec)))))
 
-(comment (update-my-stored-records
+(defn- update-stored-records
+  [db new-record]
+  (let [username (-> db :ui.auth/session :username)]
+    (reduce #(update-stored-records-by-username %1 new-record %2)
+            db
+            [username :all-time-best])))
+
+(comment (update-stored-records
           {:ui.auth/session {:username "a"}
            :ui.record/records {"a" {:best {:easy [{:inserted_at "2019-02-12T14:40:41" :level "easy" :record 78}
                                                   {:inserted_at "2019-02-12T14:40:41" :level "easy" :record 127}
@@ -67,7 +97,7 @@
  ::create-record-success
  (fn [db [_ new-record]]
    (-> db
-       (update-my-stored-records new-record)
+       (update-stored-records new-record)
        (assoc :ui.record/last-unsubmitted nil))))
 
 (rf/reg-fx
@@ -76,7 +106,7 @@
    (when params
      (session-api/new-record
       params
-      #((rf/dispatch [::create-record-success (:data %)]))
+      #(rf/dispatch [::create-record-success (:data %)])
       nil))))
 
 (comment (session-api/new-record

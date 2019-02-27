@@ -40,3 +40,12 @@
 (comment (get-records
           {:username "a" :n 2 :order-by :latest}
           nil nil))
+
+(defn get-all-time-best
+  [params handler error-handler]
+  (GET
+   (str session-url "/records/all-time-best")
+   (merge {:handler       handler
+           :error-handler error-handler
+           :url-params    (select-keys params [:order-by :n])}
+          http-settings)))
