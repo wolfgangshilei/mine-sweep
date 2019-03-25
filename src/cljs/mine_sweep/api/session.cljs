@@ -31,7 +31,7 @@
 (defn get-records
   [{:keys [username] :as params} handler error-handler]
   (GET
-   (str session-url "/records/user/" username)
+   (str session-url "/records/" username)
    (merge  {:handler       handler
             :error-handler error-handler
             :url-params    (select-keys params [:order-by :n])}
@@ -44,7 +44,7 @@
 (defn get-all-time-best
   [params handler error-handler]
   (GET
-   (str session-url "/records/all-time-best")
+   (str session-url "/records")
    (merge {:handler       handler
            :error-handler error-handler
            :url-params    (select-keys params [:order-by :n])}
