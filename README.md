@@ -2,55 +2,62 @@
 
 A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
 
+
+### Install shadow-cljs:
+
+```
+npm install --save-dev shadow-cljs
+npm install -g shadow-cljs
+```
+
+For more information about shadow-cljs, please read the document of [shadow-cljs](https://shadow-cljs.github.io/docs/UsersGuide.html#_command_line).
+
 ## Development Mode
 
 ### Start Cider from Emacs:
 
 Put this in your Emacs config file:
 
+Start a shadow-cljs REPL with `cider-jack-in-clojurescript` or (`C-c M-J`)
+
 ```
-(setq cider-cljs-lein-repl
-	"(do (require 'figwheel-sidecar.repl-api)
-         (figwheel-sidecar.repl-api/start-figwheel!)
-         (figwheel-sidecar.repl-api/cljs-repl))")
+Which command should be used:
 ```
 
-Navigate to a clojurescript file and start a figwheel REPL with `cider-jack-in-clojurescript` or (`C-c M-J`)
+enter shadow-cljs
+
+```
+Select ClojureScript REPL type:
+```
+
+enter shadow
+
+Then enter "app" as the name of the build target.
 
 ### Run application:
 
 ```
-lein clean
-lein figwheel dev
+shadow-cljs watch app
 ```
 
 Figwheel will automatically push cljs changes to the browser.
 
-Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
+Wait a bit, then browse to [http://localhost:8080](http://localhost:8080).
 
 ### Run tests:
 
-Install karma and headless chrome
+Install karma and headless chrome (ignore this step for now)
 
 ```
-npm install -g karma-cli
-npm install karma karma-cljs-test karma-chrome-launcher --save-dev
+    npm install -g karma-cli
+    npm install karma karma-cljs-test karma-chrome-launcher --save-dev
 ```
 
 And then run your tests
 
 ```
-lein clean
-lein doo chrome-headless test once
+shadow-cljs watch test
 ```
-
-Or run tests with node
-
-```
-lein doo node test once
-```
-
-Please note that [doo](https://github.com/bensu/doo) can be configured to run cljs.test in many JS environments (phantom, chrome, ie, safari, opera, slimer, node, rhino, or nashorn).
 
 ## Production Build
 
@@ -58,6 +65,5 @@ Please note that [doo](https://github.com/bensu/doo) can be configured to run cl
 To compile clojurescript to javascript:
 
 ```
-lein clean
-lein cljsbuild once min
+shadow-cljs release app
 ```
