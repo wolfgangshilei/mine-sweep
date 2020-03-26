@@ -2,6 +2,7 @@
 
 A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
 
+There is an online version of this SPA with backend integation, please try it out at [heroku](https://mine-sweep-1008.herokuapp.com)
 
 ### Install shadow-cljs:
 
@@ -13,6 +14,16 @@ npm install -g shadow-cljs
 For more information about shadow-cljs, please read the document of [shadow-cljs](https://shadow-cljs.github.io/docs/UsersGuide.html#_command_line).
 
 ## Development Mode
+
+### Run application:
+
+```
+shadow-cljs watch app
+```
+
+Figwheel will automatically push cljs changes to the browser.
+
+Wait a bit, then browse to [http://localhost:8080](http://localhost:8080).
 
 ### Start Cider from Emacs:
 
@@ -33,16 +44,6 @@ Select ClojureScript REPL type:
 enter shadow
 
 Then enter "app" as the name of the build target.
-
-### Run application:
-
-```
-shadow-cljs watch app
-```
-
-Figwheel will automatically push cljs changes to the browser.
-
-Wait a bit, then browse to [http://localhost:8080](http://localhost:8080).
 
 ### Run tests:
 
